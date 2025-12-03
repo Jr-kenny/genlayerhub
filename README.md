@@ -1,7 +1,13 @@
 # genlayerhub
+a genlayer portal to help people understand and join the genlayer network•
 
-## genlayerhub/
+Learn how genlayer works
 
+Explore ways to contribute
+
+## tree structure/
+
+```
 ├── index.html          # Home page
 ├── protocol.html      # Protocol page
 ├── articles.html      # Articles page
@@ -21,3 +27,4 @@
 └── data/
     ├── quiz.json     # Quiz questions
     └── articles.json # Articles data
+```
