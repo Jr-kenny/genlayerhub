@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community - GenLayer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        /* Community Specific Styles */
+        .community-hero {
+            padding: 140px 0 60px;
+            text-align: center;
+        }
+        
+        .community-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+        
+        .stat-card {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            text-align: center;
+            transition: var(--transition);
+        }
+        
+        .stat-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .community-posts {
+            margin-top: 3rem;
+        }
+        
+        .post-card {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+        }
+        
+        .post-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+        
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .post-info {
+            flex: 1;
+        }
+        
+        .post-author {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .post-meta {
+            display: flex;
+            gap: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        .post-content {
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        
+        .post-excerpt {
+            color: var(--text-secondary);
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .post-actions {
+            display: flex;
+            gap: 1rem;
+            border-top: 1px solid var(--dark-border);
+            padding-top: 1rem;
+        }
+        
+        .post-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .post-action-btn:hover {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .post-action-btn.liked {
+            color: var(--danger);
+        }
+        
+        .load-more {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        /* Create Post Form */
+        .create-post {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .post-form textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 1rem;
+            background: var(--dark-bg);
+            border: 1px solid var(--dark-border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            resize: vertical;
+            margin-bottom: 1rem;
+        }
+        
+        .post-form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .post-form-left {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .post-attachment {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--dark-bg);
+            border: 1px solid var(--dark-border);
+            border-radius: var(--radius);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .post-attachment:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        /* Community Channels */
+        .community-channels {
+            margin-top: 3rem;
+        }
+        
+        .channels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .channel-card {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            text-align: center;
+            transition: var(--transition);
+        }
+        
+        .channel-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+        
+        .channel-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .channel-stats {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="index.html" class="logo">
+                    <img src="images/logo.png" alt="GenLayer Logo">
+                </a>
+                
+                <div class="nav-menu">
+                    <ul class="nav-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="protocol.html">Protocol</a></li>
+                        <li><a href="articles.html">Articles</a></li>
+                        <li><a href="quiz.html">Quiz</a></li>
+                        <li><a href="community.html" class="active">Community</a></li>
+                    </ul>
+                    
+                    <a href="https://docs.genlayer.com/" class="btn btn-primary" target="_blank">
+                        <i class="fas fa-book"></i> Documentation
+                    </a>
+                </div>
+                
+                <button class="hamburger" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Community Hero -->
+    <section class="community-hero">
+        <div class="container">
+            <div class="section-header">
+                <h1>GenLayer Community</h1>
+                <p>Join developers, researchers, and enthusiasts building the future of AI-native blockchain</p>
+            </div>
+
+    <!-- Community Content -->
+    <section class="section community-section">
+        <div class="container">
+            <!-- Create Post -->
+            <div class="create-post">
+                <h3><i class="fas fa-edit"></i> Create a Post</h3>
+                <form class="post-form" id="postForm">
+                    <textarea 
+                        id="postContent" 
+                        placeholder="What's on your mind? Share your thoughts about GenLayer..."
+                        required></textarea>
+                    
+                    <div class="post-form-actions">
+                        <div class="post-form-left">
+                            <div class="post-attachment">
+                                <i class="fas fa-image"></i>
+                                <span>Image</span>
+                            </div>
+                            <div class="post-attachment">
+                                <i class="fas fa-link"></i>
+                                <span>Link</span>
+                            </div>
+                            <div class="post-attachment">
+                                <i class="fas fa-code"></i>
+                                <span>Code</span>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Post
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Community Posts -->
+            <div class="community-posts">
+                <h3><i class="fas fa-comments"></i> Recent Discussions</h3>
+                
+                <div id="postsContainer">
+                    <!-- Posts will be loaded here -->
+                    <div class="empty-state" id="loadingPosts">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Loading community posts...</p>
+                    </div>
+                </div>
+                
+                <div class="load-more">
+                    <button class="btn btn-outline" id="loadMoreBtn">
+                        <i class="fas fa-sync"></i> Load More Posts
+                    </button>
+                </div>
+            </div>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-content">
+      <!-- Brand + socials block -->
+      <div class="footer-right">
+        <div class="footer-brand">
+          <h3><strong>GenLayer</strong></h3>
+          <p>The Intelligence Layer of the Internet.</p>
+        </div>
+
+        <div class="social-links">
+          <a href="https://x.com/GenLayer" target="_blank"><i class="fab fa-twitter"></i></a>
+          <a href="https://t.me/GenLayer" target="_blank"><i class="fab fa-telegram"></i></a>
+          <a href="https://github.com/genlayerlabs" target="_blank"><i class="fab fa-github"></i></a>
+          <a href="https://discord.com/invite/rtuNxk838J" target="_blank"><i class="fab fa-discord"></i></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom center -->
+    <div class="footer-bottom">
+      <p>Made with ❤️ by <a href="https://x.com/Jrken_ny" target="_blank">Jrkenny</a></p>
+    </div>
+  </div>
+</footer>

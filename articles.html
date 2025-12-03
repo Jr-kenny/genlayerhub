@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Articles - GenLayer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        /* Articles Specific Styles */
+        .articles-hero {
+            padding: 140px 0 60px;
+            text-align: center;
+        }
+        
+        .articles-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .search-box {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: var(--radius);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+        
+        .filter-btn.active {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: transparent;
+        }
+        
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .article-card {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        
+        .article-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow);
+        }
+        
+        .article-image {
+            height: 200px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .article-image i {
+            font-size: 3rem;
+            color: white;
+            opacity: 0.8;
+        }
+        
+        .article-content {
+            padding: 1.5rem;
+        }
+        
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .article-author {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .article-author i {
+            color: var(--primary-color);
+        }
+        
+        .article-title {
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+        }
+        
+        .article-excerpt {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .article-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .like-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .like-btn:hover {
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .like-btn.liked {
+            color: var(--danger);
+        }
+        
+        .view-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary-color);
+            border-radius: var(--radius);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+        
+        .view-btn:hover {
+            background: rgba(99, 102, 241, 0.2);
+        }
+        
+        /* Submission Form */
+        .submit-form {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--dark-bg);
+            border: 1px solid var(--dark-border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+        }
+        
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--dark-card);
+            border-radius: var(--radius);
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--dark-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+        }
+        
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .jsonbin-setup {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .jsonbin-setup h4 {
+            color: #3b82f6;
+            margin-bottom: 0.5rem;
+        }
+        
+        .jsonbin-setup code {
+            display: block;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: monospace;
+            margin: 1rem 0;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="index.html" class="logo">
+                    <img src="images/logo.png" alt="GenLayer Logo">
+                </a>
+                
+                <div class="nav-menu">
+                    <ul class="nav-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="protocol.html">Protocol</a></li>
+                        <li><a href="articles.html" class="active">Articles</a></li>
+                        <li><a href="quiz.html">Quiz</a></li>
+                        <li><a href="community.html">Community</a></li>
+                    </ul>
+                    
+                    <a href="https://docs.genlayer.com/" class="btn btn-primary" target="_blank">
+                        <i class="fas fa-book"></i> Documentation
+                    </a>
+                </div>
+                
+                <button class="hamburger" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Articles Hero -->
+    <section class="articles-hero">
+        <div class="container">
+            <div class="section-header">
+                <h1>GenLayer Articles</h1>
+                <p>Explore in-depth articles about AI-native blockchain technology</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Articles Section -->
+    <section class="section articles-section">
+        <div class="container">
+            <div class="articles-controls">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search articles...">
+                </div>
+                
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="technical">Technical</button>
+                    <button class="filter-btn" data-filter="tutorial">Tutorial</button>
+                    <button class="filter-btn" data-filter="news">News</button>
+                    <button class="filter-btn" data-filter="research">Research</button>
+                </div>
+            </div>
+            
+            <div class="articles-grid" id="articlesGrid">
+                <!-- Articles will be loaded here -->
+                <div class="empty-state" id="loadingState">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading articles...</p>
+                </div>
+            </div>
+            
+            <!-- JSONBin Setup Instructions -->
+            <div class="jsonbin-setup" id="jsonbinSetup" style="display: none;">
+                <h4><i class="fas fa-info-circle"></i> JSONBin Setup Required</h4>
+                <p>To use the Articles feature, you need to set up a JSONBin.io account and configure your API keys.</p>
+                <p>Steps:</p>
+                <ol>
+                    <li>Create a free account at <a href="https://jsonbin.io" target="_blank">jsonbin.io</a></li>
+                    <li>Create a new bin with your articles data</li>
+                    <li>Update the API configuration in <code>js/api.js</code></li>
+                </ol>
+                <p>Sample data structure:</p>
+                <code id="sampleData"></code>
+            </div>
+            
+            <!-- Submit Article Form -->
+            <div class="submit-form">
+                <h3><i class="fas fa-plus-circle"></i> Submit New Article</h3>
+                <form id="articleForm">
+                    <div class="form-group">
+                        <label for="articleTitle">Title *</label>
+                        <input type="text" id="articleTitle" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="articleAuthor">Author *</label>
+                        <input type="text" id="articleAuthor" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="articleCategory">Category *</label>
+                        <select id="articleCategory" required>
+                            <option value="">Select category</option>
+                            <option value="technical">Technical</option>
+                            <option value="tutorial">Tutorial</option>
+                            <option value="news">News</option>
+                            <option value="research">Research</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="articleContent">Content *</label>
+                        <textarea id="articleContent" required placeholder="Write your article content here..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="articleExcerpt">Excerpt (optional)</label>
+                        <textarea id="articleExcerpt" placeholder="Brief summary of your article..."></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="previewBtn">
+                            <i class="fas fa-eye"></i> Preview
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Submit Article
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Article Modal -->
+    <div class="modal" id="articleModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle"></h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-meta" id="modalMeta"></div>
+                <div class="modal-content-text" id="modalContent"></div>
+            </div>
+        </div>
+    </div>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-content">
+      <!-- Brand + socials block -->
+      <div class="footer-right">
+        <div class="footer-brand">
+          <h3><strong>GenLayer</strong></h3>
+          <p>The Intelligence Layer of the Internet.</p>
+        </div>
+
+        <div class="social-links">
+          <a href="https://x.com/GenLayer" target="_blank"><i class="fab fa-twitter"></i></a>
+          <a href="https://t.me/GenLayer" target="_blank"><i class="fab fa-telegram"></i></a>
+          <a href="https://github.com/genlayerlabs" target="_blank"><i class="fab fa-github"></i></a>
+          <a href="https://discord.com/invite/rtuNxk838J" target="_blank"><i class="fab fa-discord"></i></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom center -->
+    <div class="footer-bottom">
+      <p>Made with ❤️ by <a href="https://x.com/Jrken_ny" target="_blank">Jrkenny</a></p>
+    </div>
+  </div>
+</footer>
