@@ -21,9 +21,12 @@ class ArticlesManager {
 
     bindEvents() {
         // Search functionality
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            this.filterArticles(e.target.value);
-        });
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                this.filterArticles(e.target.value);
+            });
+        }
 
         // Filter buttons
         document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -33,42 +36,78 @@ class ArticlesManager {
         });
 
         // Form submission
-        document.getElementById('articleForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.submitArticle();
-        });
+        const articleForm = document.getElementById('articleForm');
+        if (articleForm) {
+            articleForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.submitArticle();
+            });
+        }
 
         // Modal close
-        document.getElementById('modalClose').addEventListener('click', () => {
-            this.closeModal();
-        });
+        const modalClose = document.getElementById('modalClose');
+        if (modalClose) {
+            modalClose.addEventListener('click', () => {
+                this.closeModal();
+            });
+        }
 
         // Preview button
-        document.getElementById('previewBtn').addEventListener('click', () => {
-            this.previewArticle();
-        });
+        const previewBtn = document.getElementById('previewBtn');
+        if (previewBtn) {
+            previewBtn.addEventListener('click', () => {
+                this.previewArticle();
+            });
+        }
 
         // Close modal on outside click
-        document.getElementById('articleModal').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) {
-                this.closeModal();
-            }
-        });
+        const articleModal = document.getElementById('articleModal');
+        if (articleModal) {
+            articleModal.addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) {
+                    this.closeModal();
+                }
+            });
+        }
     }
 
     async loadArticles() {
         try {
-            this.articles = await this.apiClient.getArticles();
+            // Remove loading state immediately
+            this.removeLoadingState();
+            
+            // ONLY load from JSONBin if configured
+            if (this.apiClient.isConfigured()) {
+                this.articles = await this.apiClient.getArticles();
+            } else {
+                // Empty array if not configured
+                this.articles = [];
+            }
+            
             this.filteredArticles = [...this.articles];
+            
         } catch (error) {
             console.error('Error loading articles:', error);
-            this.showError('Failed to load articles. Using sample data.');
-            this.loadSampleArticles();
+            // Empty arrays on error
+            this.articles = [];
+            this.filteredArticles = [];
+            this.removeLoadingState();
+        }
+    }
+
+    removeLoadingState() {
+        const loadingElement = document.getElementById('loadingState');
+        if (loadingElement) {
+            loadingElement.style.display = 'none';
         }
     }
 
     renderArticles() {
         const grid = document.getElementById('articlesGrid');
+        if (!grid) return;
+        
+        // Make sure loading state is hidden
+        this.removeLoadingState();
         
         if (this.filteredArticles.length === 0) {
             grid.innerHTML = `
@@ -156,12 +195,16 @@ class ArticlesManager {
     }
 
     formatDate(dateString) {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        } catch (error) {
+            return 'Invalid date';
+        }
     }
 
     filterArticles(searchTerm) {
@@ -170,12 +213,16 @@ class ArticlesManager {
         if (!term) {
             this.filteredArticles = [...this.articles];
         } else {
-            this.filteredArticles = this.articles.filter(article => 
-                article.title.toLowerCase().includes(term) ||
-                article.author.toLowerCase().includes(term) ||
-                article.content.toLowerCase().includes(term) ||
-                article.category.toLowerCase().includes(term)
-            );
+            this.filteredArticles = this.articles.filter(article => {
+                if (!article || typeof article !== 'object') return false;
+                
+                return (
+                    (article.title && article.title.toLowerCase().includes(term)) ||
+                    (article.author && article.author.toLowerCase().includes(term)) ||
+                    (article.content && article.content.toLowerCase().includes(term)) ||
+                    (article.category && article.category.toLowerCase().includes(term))
+                );
+            });
         }
         
         this.renderArticles();
@@ -193,7 +240,7 @@ class ArticlesManager {
             this.filteredArticles = [...this.articles];
         } else {
             this.filteredArticles = this.articles.filter(article => 
-                article.category === filter
+                article && article.category === filter
             );
         }
         
@@ -205,26 +252,31 @@ class ArticlesManager {
             const article = this.articles.find(a => a.id === articleId);
             if (!article) return;
             
-            article.likes = (article.likes || 0) + 1;
             article.liked = !article.liked;
             
             if (article.liked) {
-                article.likes++;
+                article.likes = (article.likes || 0) + 1;
             } else {
-                article.likes = Math.max(0, article.likes - 1);
+                article.likes = Math.max(0, (article.likes || 0) - 1);
             }
             
             // Update UI
             const likeBtn = document.querySelector(`.like-btn[data-id="${articleId}"]`);
-            const likeCount = likeBtn.querySelector('.like-count');
-            
-            likeBtn.classList.toggle('liked', article.liked);
-            likeCount.textContent = article.likes;
+            if (likeBtn) {
+                const likeCount = likeBtn.querySelector('.like-count');
+                if (likeCount) {
+                    likeBtn.classList.toggle('liked', article.liked);
+                    likeCount.textContent = article.likes;
+                }
+            }
             
             // Update in API
-            await this.apiClient.updateArticle(articleId, {
-                likes: article.likes
-            });
+            if (this.apiClient.isConfigured()) {
+                await this.apiClient.updateArticle(articleId, {
+                    likes: article.likes,
+                    liked: article.liked
+                });
+            }
             
         } catch (error) {
             console.error('Error liking article:', error);
@@ -236,52 +288,67 @@ class ArticlesManager {
         const article = this.articles.find(a => a.id === articleId);
         if (!article) return;
         
+        const modal = document.getElementById('articleModal');
+        if (!modal) return;
+        
         // Update modal content
-        document.getElementById('modalTitle').textContent = article.title;
+        const modalTitle = document.getElementById('modalTitle');
+        if (modalTitle) modalTitle.textContent = article.title || 'No Title';
         
-        document.getElementById('modalMeta').innerHTML = `
-            <div class="article-meta">
-                <div class="article-author">
-                    <i class="fas fa-user"></i>
-                    <span>${article.author}</span>
+        const modalMeta = document.getElementById('modalMeta');
+        if (modalMeta) {
+            modalMeta.innerHTML = `
+                <div class="article-meta">
+                    <div class="article-author">
+                        <i class="fas fa-user"></i>
+                        <span>${article.author || 'Unknown Author'}</span>
+                    </div>
+                    <div class="article-date">
+                        <i class="fas fa-calendar"></i>
+                        <span>${this.formatDate(article.date)}</span>
+                    </div>
+                    ${article.category ? `
+                    <div class="article-category">
+                        <i class="fas fa-tag"></i>
+                        <span>${article.category}</span>
+                    </div>
+                    ` : ''}
+                    <div class="article-likes">
+                        <i class="fas fa-heart"></i>
+                        <span>${article.likes || 0} likes</span>
+                    </div>
                 </div>
-                <div class="article-date">
-                    <i class="fas fa-calendar"></i>
-                    <span>${this.formatDate(article.date)}</span>
-                </div>
-                <div class="article-category">
-                    <i class="fas fa-tag"></i>
-                    <span>${article.category}</span>
-                </div>
-                <div class="article-likes">
-                    <i class="fas fa-heart"></i>
-                    <span>${article.likes || 0} likes</span>
-                </div>
-            </div>
-        `;
+            `;
+        }
         
-        document.getElementById('modalContent').innerHTML = `
-            <div class="article-content-full">
-                ${article.content.split('\n').map(p => `<p>${p}</p>`).join('')}
-            </div>
-        `;
+        const modalContent = document.getElementById('modalContent');
+        if (modalContent) {
+            modalContent.innerHTML = `
+                <div class="article-content-full">
+                    ${article.content ? article.content.split('\n').map(p => `<p>${p}</p>`).join('') : 'No content available.'}
+                </div>
+            `;
+        }
         
         // Show modal
-        document.getElementById('articleModal').classList.add('active');
+        modal.classList.add('active');
         document.body.style.overflow = 'hidden';
     }
 
     closeModal() {
-        document.getElementById('articleModal').classList.remove('active');
-        document.body.style.overflow = '';
+        const modal = document.getElementById('articleModal');
+        if (modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
     }
 
     async submitArticle() {
-        const title = document.getElementById('articleTitle').value.trim();
-        const author = document.getElementById('articleAuthor').value.trim();
-        const category = document.getElementById('articleCategory').value;
-        const content = document.getElementById('articleContent').value.trim();
-        const excerpt = document.getElementById('articleExcerpt').value.trim();
+        const title = document.getElementById('articleTitle')?.value.trim();
+        const author = document.getElementById('articleAuthor')?.value.trim();
+        const category = document.getElementById('articleCategory')?.value;
+        const content = document.getElementById('articleContent')?.value.trim();
+        const excerpt = document.getElementById('articleExcerpt')?.value.trim();
         
         // Validation
         if (!title || !author || !category || !content) {
@@ -306,11 +373,14 @@ class ArticlesManager {
             this.articles.unshift(newArticle);
             this.filteredArticles.unshift(newArticle);
             
-            // Save to API
-            await this.apiClient.addArticle(newArticle);
+            // Save to API only if configured
+            if (this.apiClient.isConfigured()) {
+                await this.apiClient.addArticle(newArticle);
+            }
             
             // Reset form
-            document.getElementById('articleForm').reset();
+            const articleForm = document.getElementById('articleForm');
+            if (articleForm) articleForm.reset();
             
             // Update UI
             this.renderArticles();
@@ -325,72 +395,56 @@ class ArticlesManager {
     }
 
     previewArticle() {
-        const title = document.getElementById('articleTitle').value.trim();
-        const author = document.getElementById('articleAuthor').value.trim();
-        const content = document.getElementById('articleContent').value.trim();
+        const title = document.getElementById('articleTitle')?.value.trim();
+        const author = document.getElementById('articleAuthor')?.value.trim();
+        const content = document.getElementById('articleContent')?.value.trim();
         
         if (!title || !author || !content) {
             this.showError('Please fill in title, author, and content to preview');
             return;
         }
         
+        const modal = document.getElementById('articleModal');
+        if (!modal) return;
+        
         // Show preview in modal
-        document.getElementById('modalTitle').textContent = title;
+        const modalTitle = document.getElementById('modalTitle');
+        if (modalTitle) modalTitle.textContent = title;
         
-        document.getElementById('modalMeta').innerHTML = `
-            <div class="article-meta">
-                <div class="article-author">
-                    <i class="fas fa-user"></i>
-                    <span>${author}</span>
+        const modalMeta = document.getElementById('modalMeta');
+        if (modalMeta) {
+            modalMeta.innerHTML = `
+                <div class="article-meta">
+                    <div class="article-author">
+                        <i class="fas fa-user"></i>
+                        <span>${author}</span>
+                    </div>
+                    <div class="article-date">
+                        <i class="fas fa-calendar"></i>
+                        <span>Preview</span>
+                    </div>
                 </div>
-                <div class="article-date">
-                    <i class="fas fa-calendar"></i>
-                    <span>Preview</span>
+            `;
+        }
+        
+        const modalContent = document.getElementById('modalContent');
+        if (modalContent) {
+            modalContent.innerHTML = `
+                <div class="article-content-full">
+                    ${content.split('\n').map(p => `<p>${p}</p>`).join('')}
                 </div>
-            </div>
-        `;
+            `;
+        }
         
-        document.getElementById('modalContent').innerHTML = `
-            <div class="article-content-full">
-                ${content.split('\n').map(p => `<p>${p}</p>`).join('')}
-            </div>
-        `;
-        
-        document.getElementById('articleModal').classList.add('active');
+        modal.classList.add('active');
         document.body.style.overflow = 'hidden';
-    }
-
-    loadSampleArticles() {
-        this.articles = [
-            {
-                id: '1',
-                title: 'Understanding GenLayer Architecture',
-                author: 'Alex Chen',
-                category: 'technical',
-                content: 'GenLayer introduces a revolutionary three-layer architecture that enables AI-native blockchain operations...',
-                excerpt: 'Deep dive into the technical architecture of GenLayer and how it enables AI-native blockchain operations.',
-                date: '2024-01-15',
-                likes: 42,
-                liked: false
-            },
-            {
-                id: '2',
-                title: 'Getting Started with Intelligent Contracts',
-                author: 'Maria Rodriguez',
-                category: 'tutorial',
-                content: 'Learn how to write and deploy your first intelligent contract on GenLayer...',
-                excerpt: 'Step-by-step tutorial on creating and deploying intelligent contracts.',
-                date: '2024-01-10',
-                likes: 28,
-                liked: false
-            }
-        ];
-        this.filteredArticles = [...this.articles];
     }
 
     showSetupInstructions() {
         const setupDiv = document.getElementById('jsonbinSetup');
         const sampleData = document.getElementById('sampleData');
+        
+        if (!setupDiv || !sampleData) return;
         
         const sampleStructure = {
             articles: [
@@ -424,10 +478,16 @@ class ArticlesManager {
         
         // Insert at top of articles section
         const articlesSection = document.querySelector('.articles-section .container');
-        articlesSection.insertBefore(errorDiv, articlesSection.firstChild);
-        
-        // Remove after 5 seconds
-        setTimeout(() => errorDiv.remove(), 5000);
+        if (articlesSection) {
+            articlesSection.insertBefore(errorDiv, articlesSection.firstChild);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                if (errorDiv.parentNode) {
+                    errorDiv.parentNode.removeChild(errorDiv);
+                }
+            }, 5000);
+        }
     }
 
     showSuccess(message) {
@@ -442,10 +502,16 @@ class ArticlesManager {
         
         // Insert at top of articles section
         const articlesSection = document.querySelector('.articles-section .container');
-        articlesSection.insertBefore(successDiv, articlesSection.firstChild);
-        
-        // Remove after 5 seconds
-        setTimeout(() => successDiv.remove(), 5000);
+        if (articlesSection) {
+            articlesSection.insertBefore(successDiv, articlesSection.firstChild);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                if (successDiv.parentNode) {
+                    successDiv.parentNode.removeChild(successDiv);
+                }
+            }, 5000);
+        }
     }
 }
 

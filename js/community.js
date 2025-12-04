@@ -11,39 +11,63 @@ class CommunityManager {
         this.bindEvents();
         await this.loadPosts();
         this.renderPosts();
-        this.updateStats();
     }
 
     bindEvents() {
         // Post form submission
-        document.getElementById('postForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.createPost();
-        });
+        const postForm = document.getElementById('postForm');
+        if (postForm) {
+            postForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.createPost();
+            });
+        }
 
-        // Load more posts
-        document.getElementById('loadMoreBtn').addEventListener('click', () => {
-            this.loadMorePosts();
-        });
+        // Load more posts button
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', () => {
+                this.loadMorePosts();
+            });
+        }
     }
 
     async loadPosts() {
         try {
-            // In a real implementation, this would fetch from JSONBin
-            // For now, use sample data
-            this.posts = []; // Start with no posts
-            this.renderPosts();
+            // Hide loading state immediately
+            this.removeLoadingState();
             
+            // Only load from JSONBin if configured
+            if (this.apiClient.isConfigured()) {
+                // In a real implementation, this would fetch from JSONBin
+                // For now, return empty array
+                this.posts = [];
+            } else {
+                this.posts = [];
+            }
         } catch (error) {
             console.error('Error loading posts:', error);
-            this.posts = this.getSamplePosts();
-            this.renderPosts();
+            this.posts = [];
+        }
+        
+        this.renderPosts();
+    }
+
+    removeLoadingState() {
+        const loadingElement = document.getElementById('loadingPosts');
+        if (loadingElement) {
+            loadingElement.style.display = 'none';
         }
     }
 
     renderPosts() {
         const container = document.getElementById('postsContainer');
+        if (!container) return;
         
+        // Make sure loading state is hidden
+        this.removeLoadingState();
+        
+        // Check if there are posts
         if (this.posts.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
@@ -51,6 +75,13 @@ class CommunityManager {
                     <p>No posts yet. Be the first to share your thoughts!</p>
                 </div>
             `;
+            
+            // HIDE the load more button when there are no posts
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            if (loadMoreBtn) {
+                loadMoreBtn.style.display = 'none';
+            }
+            
             return;
         }
 
@@ -59,39 +90,42 @@ class CommunityManager {
         container.innerHTML = postsToShow.map(post => `
             <div class="post-card" data-id="${post.id}">
                 <div class="post-header">
-                    <div class="post-avatar">${post.avatar}</div>
+                    <div class="post-avatar">${post.avatar || (post.author ? post.author.charAt(0) : '?')}</div>
                     <div class="post-info">
-                        <div class="post-author">${post.author}</div>
+                        <div class="post-author">${post.author || 'Anonymous'}</div>
                         <div class="post-meta">
-                            <span><i class="fas fa-clock"></i> ${this.formatTimeAgo(post.timestamp)}</span>
+                            <span><i class="fas fa-clock"></i> ${post.timestamp || 'Just now'}</span>
                             <span><i class="fas fa-globe"></i> Public</span>
                         </div>
                     </div>
                 </div>
                 
                 <div class="post-content">
-                    <div class="post-excerpt">${post.content}</div>
+                    <div class="post-excerpt">${post.content || 'No content'}</div>
                 </div>
                 
                 <div class="post-actions">
                     <button class="post-action-btn ${post.liked ? 'liked' : ''}" data-action="like" data-id="${post.id}">
                         <i class="fas fa-heart"></i>
-                        <span class="like-count">${post.likes}</span>
+                        <span class="like-count">${post.likes || 0}</span>
                     </button>
                     <button class="post-action-btn" data-action="comment" data-id="${post.id}">
                         <i class="fas fa-comment"></i>
-                        <span>${post.comments}</span>
+                        <span>${post.comments || 0}</span>
                     </button>
                     <button class="post-action-btn" data-action="share" data-id="${post.id}">
                         <i class="fas fa-share"></i>
-                        <span>${post.shares}</span>
+                        <span>${post.shares || 0}</span>
                     </button>
                 </div>
             </div>
         `).join('');
 
-        // Add event listeners
+        // Add event listeners to new elements
         this.addPostEventListeners();
+        
+        // Handle load more button visibility
+        this.updateLoadMoreButton();
     }
 
     addPostEventListeners() {
@@ -123,32 +157,23 @@ class CommunityManager {
         });
     }
 
-    formatTimeAgo(timestamp) {
-        const now = new Date();
-        const postDate = new Date(timestamp);
-        const diffInSeconds = Math.floor((now - postDate) / 1000);
+    updateLoadMoreButton() {
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        if (!loadMoreBtn) return;
         
-        if (diffInSeconds < 60) {
-            return 'just now';
-        } else if (diffInSeconds < 3600) {
-            const minutes = Math.floor(diffInSeconds / 60);
-            return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
-        } else if (diffInSeconds < 86400) {
-            const hours = Math.floor(diffInSeconds / 3600);
-            return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
-        } else if (diffInSeconds < 604800) {
-            const days = Math.floor(diffInSeconds / 86400);
-            return `${days} day${days !== 1 ? 's' : ''} ago`;
+        // Only show load more button if there are more posts to show
+        if (this.displayedPosts < this.posts.length) {
+            loadMoreBtn.style.display = 'block';
         } else {
-            return postDate.toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric'
-            });
+            loadMoreBtn.style.display = 'none';
         }
     }
 
     async createPost() {
-        const content = document.getElementById('postContent').value.trim();
+        const postContent = document.getElementById('postContent');
+        if (!postContent) return;
+        
+        const content = postContent.value.trim();
         
         if (!content) {
             this.showError('Please enter some content for your post');
@@ -160,31 +185,28 @@ class CommunityManager {
                 id: Date.now().toString(),
                 author: 'You', // In a real app, this would be the logged-in user
                 avatar: 'ME',
-                content,
+                content: content,
                 likes: 0,
                 comments: 0,
                 shares: 0,
-                timestamp: new Date().toISOString(),
+                timestamp: this.formatTimeAgo(new Date().toISOString()),
                 liked: false
             };
             
             // Add to beginning of posts array
             this.posts.unshift(newPost);
             
+            // Reset displayed posts counter
+            this.displayedPosts = 5;
+            
             // Clear form
-            document.getElementById('postContent').value = '';
+            postContent.value = '';
             
             // Re-render posts
             this.renderPosts();
             
-            // Update stats
-            this.updateStats();
-            
             // Show success message
             this.showSuccess('Post published successfully!');
-            
-            // In a real implementation, save to JSONBin
-            // await this.apiClient.addPost(newPost);
             
         } catch (error) {
             console.error('Error creating post:', error);
@@ -199,24 +221,23 @@ class CommunityManager {
         post.liked = !post.liked;
         
         if (post.liked) {
-            post.likes++;
+            post.likes = (post.likes || 0) + 1;
         } else {
-            post.likes = Math.max(0, post.likes - 1);
+            post.likes = Math.max(0, (post.likes || 0) - 1);
         }
         
         // Update UI
         const likeBtn = document.querySelector(`[data-action="like"][data-id="${postId}"]`);
-        const likeCount = likeBtn.querySelector('.like-count');
-        
-        likeBtn.classList.toggle('liked', post.liked);
-        likeCount.textContent = post.likes;
-        
-        // In a real implementation, update in JSONBin
-        // await this.apiClient.updatePost(postId, { likes: post.likes, liked: post.liked });
+        if (likeBtn) {
+            const likeCount = likeBtn.querySelector('.like-count');
+            if (likeCount) {
+                likeBtn.classList.toggle('liked', post.liked);
+                likeCount.textContent = post.likes;
+            }
+        }
     }
 
     showComments(postId) {
-        // In a real implementation, this would show a comments modal
         alert('Comments feature would be implemented with a modal showing all comments for this post.');
     }
 
@@ -233,12 +254,12 @@ class CommunityManager {
                 text: shareText,
                 url: shareUrl
             }).then(() => {
-                post.shares++;
+                post.shares = (post.shares || 0) + 1;
                 this.updatePostShares(postId, post.shares);
             });
         } else {
             navigator.clipboard.writeText(`${shareText} ${shareUrl}`).then(() => {
-                post.shares++;
+                post.shares = (post.shares || 0) + 1;
                 this.updatePostShares(postId, post.shares);
                 this.showSuccess('Post link copied to clipboard!');
             });
@@ -248,25 +269,44 @@ class CommunityManager {
     updatePostShares(postId, shares) {
         const shareBtn = document.querySelector(`[data-action="share"][data-id="${postId}"]`);
         if (shareBtn) {
-            shareBtn.querySelector('span').textContent = shares;
+            const shareCount = shareBtn.querySelector('span');
+            if (shareCount) {
+                shareCount.textContent = shares;
+            }
         }
     }
 
     loadMorePosts() {
         this.displayedPosts += 5;
         this.renderPosts();
-        
-        // Hide load more button if all posts are shown
-        if (this.displayedPosts >= this.posts.length) {
-            document.getElementById('loadMoreBtn').style.display = 'none';
-        }
     }
 
-    updateStats() {
-        // Update statistics
-        document.getElementById('totalMembers').textContent = '1,247';
-        document.getElementById('totalPosts').textContent = this.posts.length;
-        document.getElementById('onlineNow').textContent = Math.floor(Math.random() * 50) + 50; // Random number 50-100
+    formatTimeAgo(timestamp) {
+        try {
+            const now = new Date();
+            const postDate = new Date(timestamp);
+            const diffInSeconds = Math.floor((now - postDate) / 1000);
+            
+            if (diffInSeconds < 60) {
+                return 'just now';
+            } else if (diffInSeconds < 3600) {
+                const minutes = Math.floor(diffInSeconds / 60);
+                return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+            } else if (diffInSeconds < 86400) {
+                const hours = Math.floor(diffInSeconds / 3600);
+                return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+            } else if (diffInSeconds < 604800) {
+                const days = Math.floor(diffInSeconds / 86400);
+                return `${days} day${days !== 1 ? 's' : ''} ago`;
+            } else {
+                return postDate.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric'
+                });
+            }
+        } catch (error) {
+            return 'Just now';
+        }
     }
 
     showError(message) {
@@ -281,10 +321,16 @@ class CommunityManager {
         
         // Insert at top of community section
         const communitySection = document.querySelector('.community-section .container');
-        communitySection.insertBefore(errorDiv, communitySection.firstChild);
-        
-        // Remove after 5 seconds
-        setTimeout(() => errorDiv.remove(), 5000);
+        if (communitySection) {
+            communitySection.insertBefore(errorDiv, communitySection.firstChild);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                if (errorDiv.parentNode) {
+                    errorDiv.parentNode.removeChild(errorDiv);
+                }
+            }, 5000);
+        }
     }
 
     showSuccess(message) {
@@ -299,10 +345,16 @@ class CommunityManager {
         
         // Insert at top of community section
         const communitySection = document.querySelector('.community-section .container');
-        communitySection.insertBefore(successDiv, communitySection.firstChild);
-        
-        // Remove after 5 seconds
-        setTimeout(() => successDiv.remove(), 5000);
+        if (communitySection) {
+            communitySection.insertBefore(successDiv, communitySection.firstChild);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                if (successDiv.parentNode) {
+                    successDiv.parentNode.removeChild(successDiv);
+                }
+            }, 5000);
+        }
     }
 }
 

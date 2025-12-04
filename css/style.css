@@ -137,23 +137,50 @@ p {
 .logo {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 1rem;
     text-decoration: none;
     color: var(--text-primary);
     font-size: 1.5rem;
     font-weight: 700;
+
+    /* Add spacing from the left edge */
+    margin-left: 10px;   /* pushes logo away from edge */
 }
 
 .logo img {
-    height: 40px;
-    width: auto;
+  width: clamp(120px, 12vw, 180px);
+  height: auto;      /* keeps the aspect ratio */
+  max-width: 160px;  /* don’t let it get too big */
+  min-width: 80px;   /* don’t let it shrink too small */
 }
 
 .nav-menu {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
 }
+
+@media (max-width: 768px) {
+  .hamburger {
+    display: block; /* 👈 show hamburger on mobile */
+  }
+
+.nav-menu {
+    display: none; /* 👈 hide menu by default */
+    flex-direction: column;
+    position: absolute;
+    top: 60px;   /* adjust based on header height */
+    left: 0;
+    width: 100%;
+    background: #fff; /* or your theme color */
+    padding: 1rem;
+  }
+
+.nav-menu.active {
+    display: flex; /* 👈 show when active */
+  }
+}
+
 
 .nav-links {
     display: flex;
@@ -210,6 +237,15 @@ p {
     overflow: hidden;
 }
 
+.hero {
+    z-index: 1;
+}
+
+/* Ensure the hero container can receive pointer events */
+.hero {
+    pointer-events: auto;
+}
+
 .hero::before {
     content: '';
     position: absolute;
@@ -218,6 +254,11 @@ p {
     right: 0;
     bottom: 0;
     background: radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%);
+}
+
+/* Ensure the decorative overlay doesn't block clicks */
+.hero::before {
+    pointer-events: none;
 }
 
 .hero-content {
@@ -242,11 +283,28 @@ p {
     line-height: 1.8;
 }
 
+
 .hero-actions {
     display: flex;
     gap: 1rem;
     justify-content: center;
     flex-wrap: wrap;
+    position: relative;
+    z-index: 9999; /* ensure buttons sit above everything */
+    pointer-events: auto; /* ensure buttons are clickable */
+}
+
+/* Make sure actions sit above floating cards/overlays */
+.hero-actions a {
+    position: relative;
+    z-index: 10000; /* ensure individual buttons are above the hero */
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.hero-actions a:hover {
+    transform: translateY(-3px);
+    opacity: 0.9;
 }
 
 .hero-image {
@@ -254,6 +312,22 @@ p {
     justify-content: center;
     gap: 2rem;
     flex-wrap: wrap;
+}
+
+.hero-image {
+    position: relative;
+    z-index: 1;
+}
+
+/* Prevent hero image/cards from blocking hero buttons */
+.hero-image {
+    pointer-events: none;
+}
+
+.floating-card {
+    pointer-events: auto;
+    position: relative;
+    z-index: 1;
 }
 
 .floating-card {
@@ -651,4 +725,63 @@ p {
 
 .spec-card li:last-child {
     border-bottom: none;
+}
+
+/* Notifications */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius);
+    z-index: 1000;
+    animation: slideIn 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    backdrop-filter: blur(10px);
+}
+
+.notification.success {
+    background: rgba(16, 185, 129, 0.9);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.notification.info {
+    background: rgba(99, 102, 241, 0.9);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+/* Hide Load More button by default */
+.load-more {
+    display: none;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+/* Only show when there are posts */
+.load-more.has-posts {
+    display: block;
 }
