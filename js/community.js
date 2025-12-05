@@ -3,13 +3,14 @@ class CommunityManager {
         this.posts = [];
         this.displayedPosts = 5;
         this.apiClient = new JSONBinAPI();
+        this.selectedImage = null;
         
         this.init();
     }
 
     async init() {
         this.bindEvents();
-        await this.loadPosts();
+        this.removeLoadingState(); // Remove loading state immediately
         this.renderPosts();
     }
 
@@ -30,33 +31,106 @@ class CommunityManager {
                 this.loadMorePosts();
             });
         }
-    }
 
-    async loadPosts() {
-        try {
-            // Hide loading state immediately
-            this.removeLoadingState();
-            
-            // Only load from JSONBin if configured
-            if (this.apiClient.isConfigured()) {
-                // In a real implementation, this would fetch from JSONBin
-                // For now, return empty array
-                this.posts = [];
-            } else {
-                this.posts = [];
-            }
-        } catch (error) {
-            console.error('Error loading posts:', error);
-            this.posts = [];
+        // Image attachment click
+        const imageAttachment = document.querySelector('.post-attachment');
+        if (imageAttachment) {
+            imageAttachment.addEventListener('click', (e) => {
+                this.triggerImageUpload();
+            });
         }
-        
-        this.renderPosts();
+
+        // Link attachment click
+        const linkAttachment = document.querySelectorAll('.post-attachment')[1];
+        if (linkAttachment) {
+            linkAttachment.addEventListener('click', (e) => {
+                this.addLink();
+            });
+        }
+
+        // Code attachment click
+        const codeAttachment = document.querySelectorAll('.post-attachment')[2];
+        if (codeAttachment) {
+            codeAttachment.addEventListener('click', (e) => {
+                this.addCodeBlock();
+            });
+        }
     }
 
     removeLoadingState() {
         const loadingElement = document.getElementById('loadingPosts');
         if (loadingElement) {
             loadingElement.style.display = 'none';
+        }
+    }
+
+    triggerImageUpload() {
+        // Create a file input element
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*';
+        fileInput.style.display = 'none';
+        
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                this.handleImageUpload(file);
+            }
+        });
+        
+        document.body.appendChild(fileInput);
+        fileInput.click();
+        document.body.removeChild(fileInput);
+    }
+
+    handleImageUpload(file) {
+        if (!file.type.startsWith('image/')) {
+            this.showError('Please select an image file');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            this.selectedImage = {
+                data: e.target.result,
+                name: file.name,
+                type: file.type
+            };
+            
+            // Show preview or indication that image is selected
+            const imageAttachment = document.querySelector('.post-attachment');
+            if (imageAttachment) {
+                imageAttachment.innerHTML = `
+                    <i class="fas fa-image" style="color: var(--primary-color);"></i>
+                    <span>${file.name.substring(0, 10)}...</span>
+                `;
+            }
+            
+            this.showSuccess('Image selected! It will be added to your post.');
+        };
+        
+        reader.readAsDataURL(file);
+    }
+
+    addLink() {
+        const url = prompt('Enter URL to share:');
+        if (url) {
+            const textarea = document.getElementById('postContent');
+            if (textarea) {
+                textarea.value += `\n${url}\n`;
+                this.showSuccess('Link added to post!');
+            }
+        }
+    }
+
+    addCodeBlock() {
+        const code = prompt('Enter your code:');
+        if (code) {
+            const textarea = document.getElementById('postContent');
+            if (textarea) {
+                textarea.value += `\n\`\`\`\n${code}\n\`\`\`\n`;
+                this.showSuccess('Code block added to post!');
+            }
         }
     }
 
@@ -67,7 +141,6 @@ class CommunityManager {
         // Make sure loading state is hidden
         this.removeLoadingState();
         
-        // Check if there are posts
         if (this.posts.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
@@ -76,12 +149,8 @@ class CommunityManager {
                 </div>
             `;
             
-            // HIDE the load more button when there are no posts
-            const loadMoreBtn = document.getElementById('loadMoreBtn');
-            if (loadMoreBtn) {
-                loadMoreBtn.style.display = 'none';
-            }
-            
+            // Update load more button visibility
+            this.updateLoadMoreButton();
             return;
         }
 
@@ -101,6 +170,7 @@ class CommunityManager {
                 </div>
                 
                 <div class="post-content">
+                    ${post.image ? `<img src="${post.image}" alt="Post image" style="max-width: 100%; border-radius: var(--radius); margin-bottom: 1rem;">` : ''}
                     <div class="post-excerpt">${post.content || 'No content'}</div>
                 </div>
                 
@@ -124,7 +194,7 @@ class CommunityManager {
         // Add event listeners to new elements
         this.addPostEventListeners();
         
-        // Handle load more button visibility
+        // Update load more button visibility
         this.updateLoadMoreButton();
     }
 
@@ -158,13 +228,17 @@ class CommunityManager {
     }
 
     updateLoadMoreButton() {
+        const loadMoreContainer = document.getElementById('loadMoreContainer');
         const loadMoreBtn = document.getElementById('loadMoreBtn');
-        if (!loadMoreBtn) return;
+        
+        if (!loadMoreContainer || !loadMoreBtn) return;
         
         // Only show load more button if there are more posts to show
-        if (this.displayedPosts < this.posts.length) {
+        if (this.displayedPosts < this.posts.length && this.posts.length > 0) {
+            loadMoreContainer.classList.add('has-posts');
             loadMoreBtn.style.display = 'block';
         } else {
+            loadMoreContainer.classList.remove('has-posts');
             loadMoreBtn.style.display = 'none';
         }
     }
@@ -186,6 +260,7 @@ class CommunityManager {
                 author: 'You', // In a real app, this would be the logged-in user
                 avatar: 'ME',
                 content: content,
+                image: this.selectedImage ? this.selectedImage.data : null,
                 likes: 0,
                 comments: 0,
                 shares: 0,
@@ -199,8 +274,18 @@ class CommunityManager {
             // Reset displayed posts counter
             this.displayedPosts = 5;
             
-            // Clear form
+            // Clear form and reset image
             postContent.value = '';
+            this.selectedImage = null;
+            
+            // Reset attachment button text
+            const imageAttachment = document.querySelector('.post-attachment');
+            if (imageAttachment) {
+                imageAttachment.innerHTML = `
+                    <i class="fas fa-image"></i>
+                    <span>Image</span>
+                `;
+            }
             
             // Re-render posts
             this.renderPosts();
@@ -279,6 +364,7 @@ class CommunityManager {
     loadMorePosts() {
         this.displayedPosts += 5;
         this.renderPosts();
+        this.updateLoadMoreButton();
     }
 
     formatTimeAgo(timestamp) {

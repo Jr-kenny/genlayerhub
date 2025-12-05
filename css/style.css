@@ -785,3 +785,102 @@ p {
 .load-more.has-posts {
     display: block;
 }
+
+/* Mobile Responsive Fixes */
+@media (max-width: 768px) {
+    .community-hero {
+        padding: 120px 0 40px;
+    }
+    
+    .create-post {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .post-form-actions {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+    
+    .post-form-left {
+        justify-content: center;
+        width: 100%;
+    }
+    
+    .post-form-left .post-attachment {
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .post-form-actions .btn {
+        width: 100%;
+        justify-content: center;
+        margin-top: 0.5rem;
+    }
+    
+    .post-card {
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+    }
+    
+    .post-actions {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .post-action-btn {
+        flex: 1;
+        justify-content: center;
+        min-width: 80px;
+    }
+    
+    .post-meta {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .load-more .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Hide Load More button by default */
+.load-more {
+    display: none;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+/* Only show when there are posts to load */
+.load-more.has-posts {
+    display: block;
+}
+
+/* Loading state fixes */
+#loadingPosts {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-secondary);
+}
+
+#loadingPosts i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+/* Attachment button improvements */
+.post-attachment {
+    cursor: pointer;
+    user-select: none;
+}
+
+.post-attachment input[type="file"] {
+    display: none;
+}
+
+/* Post button alignment fix */
+.post-form-actions .btn {
+    min-width: 120px;
+}
