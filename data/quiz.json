@@ -1,0 +1,481 @@
+{
+  "quizLevels": {
+    "easy": {
+      "title": "Easy Level - The Basics",
+      "description": "Perfect for beginners. Basic concepts and fundamentals.",
+      "questionsCount": 10,
+      "timeLimit": 900,
+      "readingMaterial": "GenLayer is a new protocol that changes how blockchains work by using Intelligent Contracts. Unlike traditional blockchains (like Ethereum) that are limited to rigid code, GenLayer integrates AI (Artificial Intelligence) directly at the protocol level.\n\nKey Differences:\n\nWeb Access: Traditional chains need 'oracles' (middlemen) to see the internet. GenLayer contracts can fetch live web data natively.\n\nLanguage: GenLayer uses Python, making it accessible to millions of developers, unlike Solidity which is niche.\n\nUnderstanding: These contracts can understand natural language (human commands), not just binary code.",
+      "questions": [
+        {
+          "question": "GenLayer contracts are different because they are:",
+          "options": [
+            "Powered by Bitcoin",
+            "Based on paper documents",
+            "AI-Powered Intelligent Contracts",
+            "Offline only"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "question": "What programming language does GenLayer primarily use to lower the barrier to entry?",
+          "options": [
+            "Python",
+            "C++",
+            "Solidity",
+            "Assembly"
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "question": "How does GenLayer interact with the internet?",
+          "options": [
+            "It requires expensive Oracles",
+            "It natively fetches live web data",
+            "It asks the user to copy-paste data",
+            "It cannot access the internet"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "question": "What is the specific name of GenLayer's smart contracts?",
+          "options": [
+            "Super Scripts",
+            "Mega Contracts",
+            "Intelligent Contracts",
+            "Brain Blocks"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "question": "GenLayer is designed for:",
+          "options": [
+            "Only PhD Researchers",
+            "Only Crypto Miners",
+            "Only Banks",
+            "Builders, Enterprises, Researchers, and Everyone"
+          ],
+          "correctAnswer": 3
+        },
+        {
+          "question": "Traditional smart contracts are limited because:",
+          "options": [
+            "They are too cheap",
+            "They use English",
+            "They can't access the outside world without oracles",
+            "They are too easy to write"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "question": "GenLayer Intelligent Contracts can interpret:",
+          "options": [
+            "Only numbers",
+            "Only encrypted hashes",
+            "Hand gestures",
+            "Natural Language (Human-readable text)"
+          ],
+          "correctAnswer": 3
+        },
+        {
+          "question": "Which consensus mechanism validates the output in GenLayer?",
+          "options": [
+            "Proof of Work",
+            "Optimistic Democracy",
+            "Proof of Luck",
+            "Mining Democracy"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "question": "What does the Python-based SDK allow?",
+          "options": [
+            "It lowers the barrier to entry for developers",
+            "It prevents developers from joining",
+            "It increases gas fees",
+            "It requires specialized hardware"
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "question": "A key vision of GenLayer is to merge:",
+          "options": [
+            "Manual labor with robots",
+            "On-chain trust with off-chain intelligence",
+            "Banks with Post Offices",
+            "Email with SMS"
+          ],
+          "correctAnswer": 1
+        }
+      ]
+    },
+    "medium": {
+      "title": "Medium Level - The Features & Use Cases",
+      "description": "For those familiar with blockchain and AI concepts.",
+      "questionsCount": 15,
+      "timeLimit": 1500,
+      "readingMaterial": "GenLayer's Intelligent Contracts leverage LLMs to process natural language and fetch off-chain data.\n\nIntelligent vs. Traditional:\n\nTraditional: Static logic, relies on Oracles, strictly deterministic.\n\nIntelligent: Adaptable logic, No Oracles needed, handles non-deterministic outputs via Optimistic Democracy.\n\nUse Cases:\n\nPrediction Markets: Decentralized trading on future events (Sports, Finance).\n\nPerformance-Based Contracting: Automates payments based on verified real-time deliverables.\n\nDispute Resolution: AI-driven arbitration that expedites case handling.\n\nNetwork States: Decentralized governance frameworks.",
+      "questions": [
+        {
+          "question": "Intelligent Contracts are distinct because they leverage:",
+          "options": [
+            "Zero-Knowledge Proofs for privacy",
+            "Quantum Computing for speed",
+            "Large Language Models (LLMs) for reasoning",
+            "IPFS for storage"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "question": "How does GenLayer handle external data compared to Ethereum?",
+          "options": [
+            "It integrates directly with real-time web data (No Oracles)",
+            "It uses a decentralized oracle network (DON)",
+            "It requires a trusted multi-sig bridge",
+            "It uses optimistic rollups to batch data"
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "question": "For \"Performance-Based Contracting,\" what triggers the release of funds?",
+          "options": [
+            "A multi-signature approval from the board",
+            "The expiration of a time-lock contract",
+            "Intelligent Contracts tracking deliverables in real-time",
+            "A manual submission of a PDF invoice"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "question": "What advantage does GenLayer offer for Dispute Resolution?",
+          "options": [
+            "It uses a jury of random token holders (Kleros style)",
+            "It freezes assets until a local court rules",
+            "It reverts the transaction entirely to prevent disputes",
+            "It utilizes AI-driven arbitration to reduce costs and latency"
+          ],
+          "correctAnswer": 3
+        },
+        {
+          "question": "GenLayer's consensus \"Optimistic Democracy\" is capable of validating:",
+          "options": [
+            "Both deterministic and non-deterministic outputs",
+            "Only deterministic mathematical equations",
+            "Only financial transaction ledgers",
+            "Proof-of-storage verifications"
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "question": "In the context of GenLayer, \"Network States\" refers to:",
+          "options": [
+            "A VPN service for privacy",
+            "The status of the blockchain connection (Online/Offline)",
+            "Decentralized governance frameworks",
+            "Sharding the network into different states"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "question": "Why is Python chosen over Solidity for GenLayer?",
+          "options": [
+            "Python executes faster on the EVM",
+            "Solidity is being deprecated globally",
+            "Python allows for larger block sizes",
+            "Python is the native language of AI and Data Science"
+          ],
+          "correctAnswer": 3
+        },
+        {
+          "question": "What is the primary function of AI-Driven DAOs on GenLayer?",
+          "options": [
+            "To mint tokens automatically based on inflation",
+            "To prevent users from selling tokens",
+            "To manage real-time governance and data-informed investments",
+            "To generate art for NFTs"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "question": "Traditional contracts are described as \"Static\". How are Intelligent Contracts described?",
+          "options": [
+            "Mutable (can be deleted)",
+            "Ephemeral (lasts only a few seconds)",
+            "Adaptable (reacts to changing conditions)",
+            "Trustless (requires no verification)"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "question": "Who validates the non-deterministic outputs in GenLayer?",
+          "options": [
+            "A centralized AI server",
+            "Validators using Optimistic Democracy",
+            "The original developer of the contract",
+            "The end-user via a wallet signature"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "question": "GenLayer removes the need for \"Oracles\". What are Oracles typically used for?",
+          "options": [
+            "Bridging off-chain data to on-chain environments",
+            "Generating random numbers",
+            "Compressing blockchain data",
+            "Encrypting private keys"
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "question": "Which of these is a listed use case for GenLayer?",
+          "options": [
+            "Automated Market Makers (AMM)",
+            "Flash Loan Arbitrage",
+            "Prediction Markets",
+            "Yield Farming Aggregators"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "question": "What limits traditional contracts regarding \"Language Understanding\"?",
+          "options": [
+            "They can only process English text",
+            "They cannot read Unicode characters",
+            "They are limited to code-based commands",
+            "They require assembly language input"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "question": "How do Intelligent Contracts verify performance in a contract?",
+          "options": [
+            "By utilizing off-chain data verification",
+            "By trusting the vendor's API blindly",
+            "By waiting for a user to upload a screenshot",
+            "By checking the wallet balance only"
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "question": "The GenLayer SDK is described as:",
+          "options": [
+            "A JavaScript framework for UI",
+            "A Rust crate for systems engineering",
+            "A Solidity library for math",
+            "A Python-centric toolset"
+          ],
+          "correctAnswer": 3
+        }
+      ]
+    },
+    "hard": {
+      "title": "Hard Level - The Mechanics",
+      "description": "Expert level with advanced technical questions.",
+      "questionsCount": 20,
+      "timeLimit": 2100,
+      "readingMaterial": "Optimistic Democracy is GenLayer's consensus mechanism, rooted in Condorcet's Jury Theorem.\n\nThe Process:\n\nSubmission: User sends transaction.\n\nLeader Proposes: A randomly chosen Leader validator processes it and proposes a result.\n\nValidators Recompute: A committee of validators re-computes. They approve/deny based on whether the output aligns (is equivalent) with the Leader's.\n\nResult Accepted: Once a majority approves, the result is provisionally accepted.\n\nAppeal: During the Finality Window, a participant can dispute by posting a bond.\n\nAdditional Validation: If appealed, a new set of validators re-evaluates.\n\nResolution: Valid appeal = Appellant rewarded. Invalid appeal = Bond forfeited.",
+      "questions": [
+        {
+          "question": "Optimistic Democracy is rooted in which theoretical framework?",
+          "options": [
+            "The Byzantine Generals Problem",
+            "The Nash Equilibrium",
+            "Condorcet's Jury Theorem",
+            "The CAP Theorem"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "question": "What specifically does Condorcet's Jury Theorem affirm regarding GenLayer?",
+          "options": [
+            "Consensus speed increases as node count decreases",
+            "The probability of a fork decreases with block height",
+            "A supermajority is required to override a leader",
+            "Collective decision-making accuracy improves as independent validators vote"
+          ],
+          "correctAnswer": 3
+        },
+        {
+          "question": "How is the \"Leader\" validator selected for a transaction?",
+          "options": [
+            "Randomly chosen",
+            "Round-robin rotation based on slot number",
+            "Weighted probability based on staked tokens",
+            "Verifiable Random Function (VRF) sortition"
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "question": "What is the specific role of the Committee after the Leader proposes a result?",
+          "options": [
+            "They verify the cryptographic signature of the proposal",
+            "They attest to the data availability",
+            "They re-compute the transaction independently",
+            "They sign the block header"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "question": "The Committee approves or denies the Leader's proposal based on:",
+          "options": [
+            "Whether the resulting state root hash matches",
+            "Whether the gas limit was respected",
+            "Whether the transaction format is valid",
+            "Whether the output aligns (is equivalent) with the Leader's result"
+          ],
+          "correctAnswer": 3
+        },
+        {
+          "question": "At what specific stage is a result considered \"Provisionally Accepted\"?",
+          "options": [
+            "When the Leader broadcasts the proposal",
+            "When a majority of the committee approves",
+            "When the block is finalized on L1",
+            "When the appeal window closes"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "question": "What must a participant do to initiate a dispute?",
+          "options": [
+            "Submit a fraud proof",
+            "Stake their reputation score",
+            "Post a bond",
+            "Pay a non-refundable gas fee"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "question": "The specific timeframe allowed for appeals is called the:",
+          "options": [
+            "Finality Window",
+            "Challenge Period",
+            "Dispute Epoch",
+            "Optimistic Interval"
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "question": "If an appeal is filed, how is the dispute resolved?",
+          "options": [
+            "The original committee re-votes with higher weight",
+            "The entire network votes (Governance proposal)",
+            "A new set of validators is chosen to re-evaluate",
+            "The transaction is reverted to the mempool"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "question": "What is the exact penalty for an invalid appeal?",
+          "options": [
+            "The bond is burned",
+            "The bond is forfeited",
+            "The bond is distributed to the Leader",
+            "The appellant's stake is slashed"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "question": "Optimistic Democracy is designed to validate outputs that are:",
+          "options": [
+            "Computationally expensive",
+            "Strictly deterministic (EVM compatible)",
+            "Inherently non-deterministic",
+            "Zero-Knowledge proofs"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "question": "Why does GenLayer need a unique consensus like Optimistic Democracy?",
+          "options": [
+            "Because Python is slower than Solidity",
+            "To prevent MEV (Miner Extractable Value)",
+            "To allow for sharded execution",
+            "Because AI models and Web Data can be non-deterministic"
+          ],
+          "correctAnswer": 3
+        },
+        {
+          "question": "In the \"Comparison\" table, Traditional Smart Contracts are limited by:",
+          "options": [
+            "Gas limits per block",
+            "Sequential transaction ordering",
+            "Deterministic code and external oracles",
+            "The \"Halting Problem\""
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "question": "What happens to the appellant if the appeal is found to be VALID?",
+          "options": [
+            "They are rewarded",
+            "They receive the Leader's stake",
+            "They get their bond back only (no reward)",
+            "They are granted validator status"
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "question": "The GenLayer documentation states that the protocol integrates AI:",
+          "options": [
+            "At the application layer",
+            "Via Layer 2 Rollups",
+            "At the protocol level",
+            "Through sidechain bridges"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "question": "Which phase comes immediately after \"Validators Recompute\"?",
+          "options": [
+            "Leader Proposes Result",
+            "Final Decision",
+            "Result Accepted",
+            "Appeal"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "question": "Under Optimistic Democracy, the system assumes the Leader's result is correct unless:",
+          "options": [
+            "A fraud proof is submitted",
+            "The gas price is too low",
+            "The committee denies it or an appeal is triggered",
+            "The random beacon fails"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "question": "\"Intelligent Contracts\" are best defined as:",
+          "options": [
+            "Self-executing programs with terms defined in code",
+            "Mutable smart contracts controlled by a DAO",
+            "Off-chain compute modules",
+            "AI-driven contracts that access web data and process natural language"
+          ],
+          "correctAnswer": 3
+        },
+        {
+          "question": "What enables GenLayer to \"Bridging multiple ecosystems\"?",
+          "options": [
+            "Atomic Swaps",
+            "Universal bridges",
+            "Interoperability",
+            "The EVM compatibility layer"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "question": "The \"Interactive Model\" mentioned in the docs relates to:",
+          "options": [
+            "The GenLayer Studio",
+            "The Tokenomics Calculator",
+            "Condorcet's Jury Theorem",
+            "The Validator Dashboard"
+          ],
+          "correctAnswer": 2
+        }
+      ]
+    }
+  }
+}

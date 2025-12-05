@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
     <style>
-        /* Quiz Specific Styles */
+        /* Quiz Specific Styles - Same as before, but you can keep it */
         .quiz-hero {
             padding: 140px 0 60px;
             text-align: center;
@@ -253,135 +253,161 @@
         </div>
     </header>
 
-    <!-- Quiz Hero -->
-    <section class="quiz-hero">
-        <div class="container">
-            <div class="section-header">
-                <h1>GenLayer Quiz</h1>
-                <p>Test your knowledge about AI-native blockchain technology</p>
-            </div>
-            
-            <div class="difficulty-grid" id="difficultySelection">
-                <div class="difficulty-card easy" data-difficulty="easy">
-                    <div class="difficulty-icon">
-                        <i class="fas fa-seedling"></i>
-                    </div>
-                    <h3>Easy Level</h3>
-                    <p>Perfect for beginners. Basic concepts and fundamentals.</p>
-                    <div class="difficulty-stats">
-                        <span><i class="fas fa-question-circle"></i> 10 Questions</span>
-                        <span><i class="fas fa-clock"></i> 15 minutes</span>
-                    </div>
+ <!-- Quiz Hero -->
+<section class="quiz-hero">
+    <div class="container">
+        <div class="section-header">
+            <h1>GenLayer Quiz</h1>
+            <p>Test your knowledge about AI-native blockchain technology</p>
+        </div>
+        
+        <div class="difficulty-grid" id="difficultySelection">
+            <div class="difficulty-card easy" data-difficulty="easy">
+                <div class="difficulty-icon">
+                    <i class="fas fa-seedling"></i>
                 </div>
-                
-                <div class="difficulty-card medium" data-difficulty="medium">
-                    <div class="difficulty-icon">
-                        <i class="fas fa-mountain"></i>
-                    </div>
-                    <h3>Medium Level</h3>
-                    <p>For those familiar with blockchain and AI concepts.</p>
-                    <div class="difficulty-stats">
-                        <span><i class="fas fa-question-circle"></i> 15 Questions</span>
-                        <span><i class="fas fa-clock"></i> 25 minutes</span>
-                    </div>
-                </div>
-                
-                <div class="difficulty-card hard" data-difficulty="hard">
-                    <div class="difficulty-icon">
-                        <i class="fas fa-fire"></i>
-                    </div>
-                    <h3>Hard Level</h3>
-                    <p>Expert level with advanced technical questions.</p>
-                    <div class="difficulty-stats">
-                        <span><i class="fas fa-question-circle"></i> 20 Questions</span>
-                        <span><i class="fas fa-clock"></i> 35 minutes</span>
-                    </div>
+                <h3>Easy Level</h3>
+                <p>Perfect for beginners. Basic concepts and fundamentals.</p>
+                <div class="difficulty-stats">
+                    <span><i class="fas fa-question-circle"></i> 10 Questions</span>
+                    <span><i class="fas fa-clock"></i> 15 minutes</span>
                 </div>
             </div>
             
-            <div class="quiz-container" id="quizContainer">
-                <div class="quiz-header">
-                    <div>
-                        <h3 id="quizTitle">Quiz</h3>
-                        <div class="question-counter">Question <span id="currentQuestion">1</span> of <span id="totalQuestions">10</span></div>
-                    </div>
-                    <div class="timer" id="timer">15:00</div>
+            <div class="difficulty-card medium" data-difficulty="medium">
+                <div class="difficulty-icon">
+                    <i class="fas fa-mountain"></i>
                 </div>
-                
-                <div class="progress-bar">
-                    <div class="progress" id="progressBar"></div>
-                </div>
-                
-                <div class="question-card">
-                    <div class="question-text" id="questionText"></div>
-                    
-                    <div class="options-grid" id="optionsContainer">
-                        <!-- Options will be inserted here -->
-                    </div>
-                </div>
-                
-                <div class="quiz-actions">
-                    <button class="btn btn-secondary" id="prevBtn" disabled>
-                        <i class="fas fa-arrow-left"></i> Previous
-                    </button>
-                    <button class="btn btn-primary" id="nextBtn">
-                        Next <i class="fas fa-arrow-right"></i>
-                    </button>
+                <h3>Medium Level</h3>
+                <p>For those familiar with blockchain and AI concepts.</p>
+                <div class="difficulty-stats">
+                    <span><i class="fas fa-question-circle"></i> 15 Questions</span>
+                    <span><i class="fas fa-clock"></i> 25 minutes</span>
                 </div>
             </div>
             
-            <div class="result-container" id="resultContainer">
-                <div class="section-header">
-                    <h2>Quiz Completed!</h2>
-                    <div class="result-score" id="finalScore">0%</div>
-                    <div class="result-feedback" id="resultFeedback">Keep Learning</div>
-                    <p id="resultMessage">Your results have been recorded.</p>
+            <div class="difficulty-card hard" data-difficulty="hard">
+                <div class="difficulty-icon">
+                    <i class="fas fa-fire"></i>
+                </div>
+                <h3>Hard Level</h3>
+                <p>Expert level with advanced technical questions.</p>
+                <div class="difficulty-stats">
+                    <span><i class="fas fa-question-circle"></i> 20 Questions</span>
+                    <span><i class="fas fa-clock"></i> 35 minutes</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reading Material Section -->
+        <div class="reading-material-container" id="readingMaterialContainer" style="display: none;">
+            <div class="reading-material-card">
+                <div class="reading-material-header">
+                    <h3 id="readingMaterialTitle">Reading Material</h3>
+                    <button class="btn btn-secondary" id="backToLevelsBtn">
+                        <i class="fas fa-arrow-left"></i> Back to Levels
+                    </button>
                 </div>
                 
-                <div class="result-details">
-                    <div class="stats-grid">
-                        <div class="stat">
-                            <h4>Correct</h4>
-                            <div class="stat-value" id="correctAnswers">0</div>
-                        </div>
-                        <div class="stat">
-                            <h4>Incorrect</h4>
-                            <div class="stat-value" id="incorrectAnswers">0</div>
-                        </div>
-                        <div class="stat">
-                            <h4>Skipped</h4>
-                            <div class="stat-value" id="skippedAnswers">0</div>
-                        </div>
-                        <div class="stat">
-                            <h4>Time</h4>
-                            <div class="stat-value" id="timeTaken">0:00</div>
-                        </div>
+                <div class="reading-material-content" id="readingMaterialContent">
+                    <!-- Reading material will be inserted here -->
+                </div>
+                
+                <div class="reading-material-footer">
+                    <div class="material-stats">
+                        <span><i class="fas fa-book"></i> <span id="materialQuestions">10</span> Questions</span>
+                        <span><i class="fas fa-clock"></i> <span id="materialTime">15:00</span> Time Limit</span>
                     </div>
-                </div>
-                
-                <div class="result-actions">
-                    <button class="btn btn-primary" id="restartBtn">
-                        <i class="fas fa-redo"></i> Restart Quiz
-                    </button>
-                    <button class="btn btn-secondary" id="shareBtn">
-                        <i class="fas fa-share-alt"></i> Share Results
-                    </button>
-                    <button class="btn btn-secondary" id="certificateBtn">
-                        <i class="fas fa-certificate"></i> Download Certificate
-                    </button>
-                </div>
-                
-                <div class="certificate" id="certificatePreview" style="display: none;">
-                    <h3><i class="fas fa-certificate"></i> Certificate of Completion</h3>
-                    <p>This certifies that you have completed the GenLayer <span id="certDifficulty">Easy</span> Level Quiz</p>
-                    <p>Score: <span id="certScore">0%</span></p>
-                    <button class="btn btn-primary" id="downloadCertBtn">
-                        <i class="fas fa-download"></i> Download PDF
+                    <button class="btn btn-primary" id="startQuizBtn">
+                        Start Quiz <i class="fas fa-play"></i>
                     </button>
                 </div>
             </div>
         </div>
-    </section>
+        
+        <div class="quiz-container" id="quizContainer">
+            <div class="quiz-header">
+                <div>
+                    <h3 id="quizTitle">Quiz</h3>
+                    <div class="question-counter">Question <span id="currentQuestion">1</span> of <span id="totalQuestions">10</span></div>
+                </div>
+                <div class="timer" id="timer">15:00</div>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress" id="progressBar"></div>
+            </div>
+            
+            <div class="question-card">
+                <div class="question-text" id="questionText"></div>
+                
+                <div class="options-grid" id="optionsContainer">
+                    <!-- Options will be inserted here by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="quiz-actions">
+                <button class="btn btn-secondary" id="prevBtn" disabled>
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+                <button class="btn btn-primary" id="nextBtn">
+                    Next 
+                </button>
+            </div>
+        </div>
+        
+        <div class="result-container" id="resultContainer">
+            <div class="section-header">
+                <h2>Quiz Completed!</h2>
+                <div class="result-score" id="finalScore">0%</div>
+                <div class="result-feedback" id="resultFeedback">Keep Learning</div>
+                <p id="resultMessage">Your results have been recorded.</p>
+            </div>
+            
+            <div class="result-details">
+                <div class="stats-grid">
+                    <div class="stat">
+                        <h4>Correct</h4>
+                        <div class="stat-value" id="correctAnswers">0</div>
+                    </div>
+                    <div class="stat">
+                        <h4>Incorrect</h4>
+                        <div class="stat-value" id="incorrectAnswers">0</div>
+                    </div>
+                    <div class="stat">
+                        <h4>Skipped</h4>
+                        <div class="stat-value" id="skippedAnswers">0</div>
+                    </div>
+                    <div class="stat">
+                        <h4>Time</h4>
+                        <div class="stat-value" id="timeTaken">0:00</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="result-actions">
+                <button class="btn btn-primary" id="restartBtn">
+                    <i class="fas fa-redo"></i> Restart Quiz
+                </button>
+                <button class="btn btn-secondary" id="shareBtn">
+                    <i class="fas fa-share-alt"></i> Share Results
+                </button>
+                <button class="btn btn-secondary" id="certificateBtn">
+                    <i class="fas fa-certificate"></i> Download Certificate
+                </button>
+            </div>
+            
+            <div class="certificate" id="certificatePreview" style="display: none;">
+                <h3><i class="fas fa-certificate"></i> Certificate of Completion</h3>
+                <p>This certifies that you have completed the GenLayer <span id="certDifficulty">Easy</span> Level Quiz</p>
+                <p>Score: <span id="certScore">0%</span></p>
+                <button class="btn btn-primary" id="downloadCertBtn">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
 
 <footer class="footer">
   <div class="container">
@@ -401,6 +427,8 @@
         </div>
       </div>
     </div>
+  </div>
+</footer>
 
     <!-- Bottom center -->
     <div class="footer-bottom">

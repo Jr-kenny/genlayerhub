@@ -1,263 +1,313 @@
-class QuizSystem {
+// Quiz Application
+class QuizApp {
     constructor() {
-        this.difficulty = null;
-        this.questions = [];
+        this.quizData = null;
+        this.currentLevel = null;
         this.currentQuestionIndex = 0;
         this.userAnswers = [];
         this.score = 0;
+        this.timer = null;
+        this.timeLeft = 0;
         this.startTime = null;
-        this.timerInterval = null;
-        this.timeLimit = 900; // 15 minutes in seconds
         
         this.init();
     }
-
-    init() {
-        this.bindEvents();
-        this.loadQuizData();
+    
+    async init() {
+        try {
+            // Load quiz data from JSON
+            const response = await fetch('/data/quiz.json');
+            this.quizData = await response.json();
+            
+            // Set up event listeners
+            this.setupEventListeners();
+        } catch (error) {
+            console.error('Error loading quiz data:', error);
+            alert('Failed to load quiz data. Please try again later.');
+        }
     }
-
-    bindEvents() {
+    
+    setupEventListeners() {
         // Difficulty selection
         document.querySelectorAll('.difficulty-card').forEach(card => {
             card.addEventListener('click', (e) => {
-                this.selectDifficulty(e.currentTarget.dataset.difficulty);
+                this.showReadingMaterial(e.currentTarget.dataset.difficulty);
             });
         });
-
+        
+        // Back to levels button
+        document.getElementById('backToLevelsBtn').addEventListener('click', () => {
+            this.hideReadingMaterial();
+        });
+        
+        // Start quiz button
+        document.getElementById('startQuizBtn').addEventListener('click', () => {
+            this.startQuiz();
+        });
+        
         // Quiz navigation
         document.getElementById('prevBtn').addEventListener('click', () => this.prevQuestion());
         document.getElementById('nextBtn').addEventListener('click', () => this.nextQuestion());
         
-        // Result actions
+        // Restart quiz
         document.getElementById('restartBtn').addEventListener('click', () => this.restartQuiz());
+        
+        // Share results
         document.getElementById('shareBtn').addEventListener('click', () => this.shareResults());
+        
+        // Certificate
         document.getElementById('certificateBtn').addEventListener('click', () => this.showCertificate());
         document.getElementById('downloadCertBtn').addEventListener('click', () => this.downloadCertificate());
     }
-
-    async loadQuizData() {
-        try {
-            const response = await fetch('data/quiz.json');
-            const data = await response.json();
-            this.allQuestions = data;
-        } catch (error) {
-            console.error('Error loading quiz data:', error);
-            this.allQuestions = this.getDefaultQuestions();
+    
+    showReadingMaterial(level) {
+        this.currentLevel = level;
+        const levelData = this.quizData.quizLevels[level];
+        
+        if (!levelData) {
+            alert('Quiz data not found for this level.');
+            return;
         }
-    }
-
-    selectDifficulty(difficulty) {
-        this.difficulty = difficulty;
-        this.questions = this.getQuestionsByDifficulty(difficulty);
-        this.userAnswers = new Array(this.questions.length).fill(null);
         
-        // Update UI
+        // Hide difficulty selection, show reading material
         document.getElementById('difficultySelection').style.display = 'none';
+        document.getElementById('readingMaterialContainer').style.display = 'block';
+        
+        // Set reading material title
+        document.getElementById('readingMaterialTitle').textContent = `${levelData.title} - Reading Material`;
+        
+        // Format and display reading material
+        const contentElement = document.getElementById('readingMaterialContent');
+        const formattedContent = levelData.readingMaterial
+            .replace(/\n\n/g, '</p><p>')
+            .replace(/\n/g, '<br>');
+        
+        contentElement.innerHTML = `<p>${formattedContent}</p>`;
+        
+        // Update stats
+        document.getElementById('materialQuestions').textContent = levelData.questionsCount;
+        
+        const minutes = Math.floor(levelData.timeLimit / 60);
+        const seconds = levelData.timeLimit % 60;
+        document.getElementById('materialTime').textContent = 
+            `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+    
+    hideReadingMaterial() {
+        document.getElementById('readingMaterialContainer').style.display = 'none';
+        document.getElementById('difficultySelection').style.display = 'grid';
+        this.currentLevel = null;
+    }
+    
+    startQuiz() {
+        const levelData = this.quizData.quizLevels[this.currentLevel];
+        
+        // Hide reading material, show quiz
+        document.getElementById('readingMaterialContainer').style.display = 'none';
         document.getElementById('quizContainer').style.display = 'block';
-        document.getElementById('quizTitle').textContent = `${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} Level Quiz`;
-        document.getElementById('totalQuestions').textContent = this.questions.length;
         
-        // Set time limit based on difficulty
-        this.timeLimit = difficulty === 'easy' ? 900 : difficulty === 'medium' ? 1500 : 2100;
+        // Set quiz title
+        document.getElementById('quizTitle').textContent = levelData.title;
         
-        // Start timer
+        // Set total questions
+        document.getElementById('totalQuestions').textContent = levelData.questionsCount;
+        
+        // Initialize quiz state
+        this.currentQuestionIndex = 0;
+        this.userAnswers = new Array(levelData.questions.length).fill(null);
+        this.score = 0;
+        
+        // Set timer
+        this.timeLeft = levelData.timeLimit; // seconds
+        this.startTime = Date.now();
+        this.updateTimerDisplay();
         this.startTimer();
         
         // Load first question
-        this.loadQuestion(0);
+        this.loadQuestion();
     }
-
-    getQuestionsByDifficulty(difficulty) {
-        const filtered = this.allQuestions.filter(q => q.difficulty === difficulty);
-        return this.shuffleArray(filtered);
-    }
-
-    shuffleArray(array) {
-        const shuffled = [...array];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-        return shuffled;
-    }
-
-    loadQuestion(index) {
-        this.currentQuestionIndex = index;
-        const question = this.questions[index];
+    
+    // ... rest of your existing methods (startTimer, updateTimerDisplay, loadQuestion, etc.)
+    // These remain exactly the same as before
+    startTimer() {
+        if (this.timer) clearInterval(this.timer);
         
-        // Update UI
-        document.getElementById('questionText').textContent = question.question;
-        document.getElementById('currentQuestion').textContent = index + 1;
+        this.timer = setInterval(() => {
+            this.timeLeft--;
+            this.updateTimerDisplay();
+            
+            if (this.timeLeft <= 0) {
+                clearInterval(this.timer);
+                this.endQuiz();
+            }
+        }, 1000);
+    }
+    
+    updateTimerDisplay() {
+        const minutes = Math.floor(this.timeLeft / 60);
+        const seconds = this.timeLeft % 60;
+        document.getElementById('timer').textContent = 
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    
+    loadQuestion() {
+        const levelData = this.quizData.quizLevels[this.currentLevel];
+        const question = levelData.questions[this.currentQuestionIndex];
         
-        // Update progress
-        const progress = ((index + 1) / this.questions.length) * 100;
+        // Update question counter
+        document.getElementById('currentQuestion').textContent = this.currentQuestionIndex + 1;
+        
+        // Update progress bar
+        const progress = ((this.currentQuestionIndex + 1) / levelData.questions.length) * 100;
         document.getElementById('progressBar').style.width = `${progress}%`;
         
-        // Clear options
+        // Set question text
+        document.getElementById('questionText').textContent = question.question;
+        
+        // Create options
         const optionsContainer = document.getElementById('optionsContainer');
         optionsContainer.innerHTML = '';
         
-        // Add options
-        question.options.forEach((option, i) => {
+        question.options.forEach((option, index) => {
             const optionElement = document.createElement('div');
             optionElement.className = 'option';
-            if (this.userAnswers[index] === i) {
+            if (this.userAnswers[this.currentQuestionIndex] === index) {
                 optionElement.classList.add('selected');
             }
+            optionElement.dataset.index = index;
             
             optionElement.innerHTML = `
-                <div class="option-label">${String.fromCharCode(65 + i)}</div>
+                <div class="option-label">${String.fromCharCode(65 + index)}</div>
                 <div class="option-text">${option}</div>
             `;
             
-            optionElement.addEventListener('click', () => this.selectOption(i));
+            optionElement.addEventListener('click', () => this.selectOption(index));
             optionsContainer.appendChild(optionElement);
         });
         
         // Update navigation buttons
-        document.getElementById('prevBtn').disabled = index === 0;
+        document.getElementById('prevBtn').disabled = this.currentQuestionIndex === 0;
         document.getElementById('nextBtn').textContent = 
-            index === this.questions.length - 1 ? 'Submit Quiz' : 'Next';
+            this.currentQuestionIndex === levelData.questions.length - 1 ? 
+            'Submit Quiz' : 
+            'Next';
     }
-
+    
     selectOption(optionIndex) {
-        // Remove selected class from all options
+        // Deselect all options
         document.querySelectorAll('.option').forEach(opt => {
             opt.classList.remove('selected');
         });
         
-        // Add selected class to clicked option
-        document.querySelectorAll('.option')[optionIndex].classList.add('selected');
+        // Select clicked option
+        event.currentTarget.classList.add('selected');
         
-        // Save answer
+        // Store answer
         this.userAnswers[this.currentQuestionIndex] = optionIndex;
     }
-
+    
     prevQuestion() {
         if (this.currentQuestionIndex > 0) {
-            this.loadQuestion(this.currentQuestionIndex - 1);
+            this.currentQuestionIndex--;
+            this.loadQuestion();
         }
     }
-
+    
     nextQuestion() {
-        if (this.currentQuestionIndex < this.questions.length - 1) {
-            this.loadQuestion(this.currentQuestionIndex + 1);
+        const levelData = this.quizData.quizLevels[this.currentLevel];
+        
+        // If no answer selected, skip
+        if (this.userAnswers[this.currentQuestionIndex] === null) {
+            // You can add a warning here if you want
+        }
+        
+        if (this.currentQuestionIndex < levelData.questions.length - 1) {
+            this.currentQuestionIndex++;
+            this.loadQuestion();
         } else {
-            this.submitQuiz();
+            this.endQuiz();
         }
     }
-
-    startTimer() {
-        this.startTime = Date.now();
-        clearInterval(this.timerInterval);
-        
-        this.timerInterval = setInterval(() => {
-            const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
-            const remaining = this.timeLimit - elapsed;
-            
-            if (remaining <= 0) {
-                clearInterval(this.timerInterval);
-                this.submitQuiz();
-                return;
-            }
-            
-            const minutes = Math.floor(remaining / 60);
-            const seconds = remaining % 60;
-            document.getElementById('timer').textContent = 
-                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }, 1000);
-    }
-
-    submitQuiz() {
-        clearInterval(this.timerInterval);
+    
+    endQuiz() {
+        clearInterval(this.timer);
         
         // Calculate score
-        this.score = 0;
-        this.questions.forEach((question, index) => {
-            if (this.userAnswers[index] === question.correctAnswer) {
-                this.score++;
+        const levelData = this.quizData.quizLevels[this.currentLevel];
+        let correct = 0;
+        let incorrect = 0;
+        let skipped = 0;
+        
+        levelData.questions.forEach((question, index) => {
+            const userAnswer = this.userAnswers[index];
+            
+            if (userAnswer === null) {
+                skipped++;
+            } else if (userAnswer === question.correctAnswer) {
+                correct++;
+            } else {
+                incorrect++;
             }
         });
         
-        // Calculate percentage
-        const percentage = (this.score / this.questions.length) * 100;
+        this.score = Math.round((correct / levelData.questions.length) * 100);
+        
+        // Hide quiz, show results
+        document.getElementById('quizContainer').style.display = 'none';
+        document.getElementById('resultContainer').style.display = 'block';
+        
+        // Update result display
+        document.getElementById('finalScore').textContent = `${this.score}%`;
+        document.getElementById('correctAnswers').textContent = correct;
+        document.getElementById('incorrectAnswers').textContent = incorrect;
+        document.getElementById('skippedAnswers').textContent = skipped;
         
         // Calculate time taken
         const timeTaken = Math.floor((Date.now() - this.startTime) / 1000);
         const minutes = Math.floor(timeTaken / 60);
         const seconds = timeTaken % 60;
-        
-        // Show results
-        this.showResults(percentage, timeTaken);
-    }
-
-    showResults(percentage, timeTaken) {
-        document.getElementById('quizContainer').style.display = 'none';
-        document.getElementById('resultContainer').style.display = 'block';
-        
-        // Update results
-        document.getElementById('finalScore').textContent = `${percentage.toFixed(1)}%`;
-        document.getElementById('correctAnswers').textContent = this.score;
-        document.getElementById('incorrectAnswers').textContent = this.questions.length - this.score;
-        document.getElementById('skippedAnswers').textContent = this.userAnswers.filter(a => a === null).length;
         document.getElementById('timeTaken').textContent = 
-            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            `${minutes}:${seconds.toString().padStart(2, '0')}`;
         
         // Set feedback
-        const feedback = this.getFeedback(percentage);
-        document.getElementById('resultFeedback').textContent = feedback.message;
-        document.getElementById('resultFeedback').style.color = feedback.color;
-        document.getElementById('resultMessage').textContent = feedback.description;
+        let feedback = '';
+        let message = '';
+        
+        if (this.score >= 90) {
+            feedback = 'Outstanding!';
+            message = 'You have mastered this level!';
+        } else if (this.score >= 70) {
+            feedback = 'Great Job!';
+            message = 'You have a solid understanding of the material.';
+        } else if (this.score >= 50) {
+            feedback = 'Good Effort!';
+            message = 'You have a basic understanding but room for improvement.';
+        } else {
+            feedback = 'Keep Learning!';
+            message = 'Review the material and try again.';
+        }
+        
+        document.getElementById('resultFeedback').textContent = feedback;
+        document.getElementById('resultMessage').textContent = message;
         
         // Update certificate preview
         document.getElementById('certDifficulty').textContent = 
-            this.difficulty.charAt(0).toUpperCase() + this.difficulty.slice(1);
-        document.getElementById('certScore').textContent = `${percentage.toFixed(1)}%`;
+            this.currentLevel.charAt(0).toUpperCase() + this.currentLevel.slice(1);
+        document.getElementById('certScore').textContent = `${this.score}%`;
     }
-
-    getFeedback(percentage) {
-        if (percentage >= 90) {
-            return {
-                message: 'Perfect! 🎯',
-                color: '#10b981',
-                description: 'Excellent! You have mastered GenLayer concepts.'
-            };
-        } else if (percentage >= 70) {
-            return {
-                message: 'Great Job! 👍',
-                color: '#3b82f6',
-                description: 'Very good understanding of GenLayer technology.'
-            };
-        } else if (percentage >= 50) {
-            return {
-                message: 'Good Effort! 👏',
-                color: '#f59e0b',
-                description: 'You have a solid foundation. Keep learning!'
-            };
-        } else {
-            return {
-                message: 'Keep Learning! 📚',
-                color: '#ef4444',
-                description: 'Review the documentation and try again.'
-            };
-        }
-    }
-
+    
     restartQuiz() {
-        // Reset quiz state
-        this.currentQuestionIndex = 0;
-        this.userAnswers = new Array(this.questions.length).fill(null);
-        this.score = 0;
-        
-        // Show difficulty selection
+        // Hide results and certificate, show difficulty selection
         document.getElementById('resultContainer').style.display = 'none';
-        document.getElementById('difficultySelection').style.display = 'grid';
         document.getElementById('certificatePreview').style.display = 'none';
+        document.getElementById('difficultySelection').style.display = 'grid';
+        document.getElementById('readingMaterialContainer').style.display = 'none';
+        document.getElementById('quizContainer').style.display = 'none';
     }
-
+    
     shareResults() {
-        const shareText = `I scored ${this.score}/${this.questions.length} on the GenLayer ${this.difficulty} level quiz! Test your knowledge: ${window.location.href}`;
+        const levelData = this.quizData.quizLevels[this.currentLevel];
+        const shareText = `I scored ${this.score}% on the GenLayer ${this.currentLevel} level quiz! Test your knowledge at GenLayer.`;
         
         if (navigator.share) {
             navigator.share({
@@ -266,72 +316,26 @@ class QuizSystem {
                 url: window.location.href
             });
         } else {
+            // Fallback: copy to clipboard
             navigator.clipboard.writeText(shareText).then(() => {
                 alert('Results copied to clipboard!');
             });
         }
     }
-
+    
     showCertificate() {
-        document.getElementById('certificatePreview').style.display = 'block';
+        const certificate = document.getElementById('certificatePreview');
+        certificate.style.display = certificate.style.display === 'none' ? 'block' : 'none';
     }
-
+    
     downloadCertificate() {
-        // In a real implementation, this would generate a PDF
-        alert('Certificate download feature would generate a PDF in production.');
-    }
-
-    getDefaultQuestions() {
-        return [
-            {
-                difficulty: 'easy',
-                question: 'What is GenLayer primarily designed for?',
-                options: [
-                    'AI-native blockchain operations',
-                    'Traditional financial transactions',
-                    'Social media applications',
-                    'Gaming platforms'
-                ],
-                correctAnswer: 0
-            },
-            {
-                difficulty: 'easy',
-                question: 'What makes GenLayer different from traditional blockchains?',
-                options: [
-                    'Non-deterministic operations',
-                    'Faster transaction speeds',
-                    'Lower fees',
-                    'More nodes'
-                ],
-                correctAnswer: 0
-            },
-            {
-                difficulty: 'medium',
-                question: 'How does GenLayer handle subjective decision-making?',
-                options: [
-                    'Through AI agent consensus',
-                    'By human voting',
-                    'Random selection',
-                    'Centralized authority'
-                ],
-                correctAnswer: 0
-            },
-            {
-                difficulty: 'hard',
-                question: 'What is the role of the Learning Layer in GenLayer architecture?',
-                options: [
-                    'Continuous AI model improvement',
-                    'Transaction validation',
-                    'Network security',
-                    'Storage management'
-                ],
-                correctAnswer: 0
-            }
-        ];
+        // In a real implementation, you would generate a PDF here
+        // For now, we'll just show an alert
+        alert('Certificate download would be implemented here. In a production app, this would generate a PDF with your name, score, and completion date.');
     }
 }
 
 // Initialize quiz when page loads
 document.addEventListener('DOMContentLoaded', () => {
-    const quiz = new QuizSystem();
+    new QuizApp();
 });
