@@ -19,14 +19,20 @@ class JSONBinAPI {
                 'X-Master-Key': this.API_KEY
             };
             this.configLoaded = true;
+            console.info('Configuration loaded successfully.');
         } catch (error) {
-            console.error('Failed to load config:', error);
+            console.error('Unable to load configuration:', error);
         }
     }
 
     isConfigured() {
-        return this.configLoaded && this.BIN_ID && this.API_KEY && 
-               this.BIN_ID.length > 0 && this.API_KEY.length > 0;
+        return (
+            this.configLoaded &&
+            this.BIN_ID &&
+            this.API_KEY &&
+            this.BIN_ID.length > 0 &&
+            this.API_KEY.length > 0
+        );
     }
 
     async waitForConfig() {
@@ -39,54 +45,52 @@ class JSONBinAPI {
 
     async getArticles() {
         await this.waitForConfig();
-        
+
         if (!this.isConfigured()) {
-            console.warn('JSONBin not configured. Returning empty array.');
+            console.warn('JSONBin configuration missing. Returning empty list.');
             return [];
         }
-        
+
         try {
             const response = await fetch(`${this.BASE_URL}/${this.BIN_ID}/latest`, {
                 headers: this.HEADERS
             });
-            
+
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error(`Failed to fetch articles. Status: ${response.status}`);
             }
-            
+
             const data = await response.json();
             return data.record.articles || [];
-            
         } catch (error) {
-            console.error('Error fetching articles:', error);
+            console.error('Error retrieving articles:', error);
             return [];
         }
     }
 
     async addArticle(article) {
         await this.waitForConfig();
-        
+
         if (!this.isConfigured()) {
-            console.warn('JSONBin not configured. Article saved locally only.');
+            console.warn('JSONBin configuration missing. Article not persisted.');
             return Promise.resolve();
         }
-        
+
         try {
             const currentArticles = await this.getArticles();
             const updatedArticles = [article, ...currentArticles];
-            
+
             const response = await fetch(`${this.BASE_URL}/${this.BIN_ID}`, {
                 method: 'PUT',
                 headers: this.HEADERS,
                 body: JSON.stringify({ articles: updatedArticles })
             });
-            
+
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error(`Failed to add article. Status: ${response.status}`);
             }
-            
+
             return await response.json();
-            
         } catch (error) {
             console.error('Error adding article:', error);
             throw error;
@@ -95,33 +99,29 @@ class JSONBinAPI {
 
     async updateArticle(articleId, updates) {
         await this.waitForConfig();
-        
+
         if (!this.isConfigured()) {
-            console.warn('JSONBin not configured. Update saved locally only.');
+            console.warn('JSONBin configuration missing. Update not persisted.');
             return Promise.resolve();
         }
-        
+
         try {
             const currentArticles = await this.getArticles();
-            const updatedArticles = currentArticles.map(article => {
-                if (article.id === articleId) {
-                    return { ...article, ...updates };
-                }
-                return article;
-            });
-            
+            const updatedArticles = currentArticles.map(article =>
+                article.id === articleId ? { ...article, ...updates } : article
+            );
+
             const response = await fetch(`${this.BASE_URL}/${this.BIN_ID}`, {
                 method: 'PUT',
                 headers: this.HEADERS,
                 body: JSON.stringify({ articles: updatedArticles })
             });
-            
+
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error(`Failed to update article. Status: ${response.status}`);
             }
-            
+
             return await response.json();
-            
         } catch (error) {
             console.error('Error updating article:', error);
             throw error;
@@ -129,7 +129,7 @@ class JSONBinAPI {
     }
 }
 
-// Export for use in other files
+// Export for Node.js usage
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = JSONBinAPI;
 }
