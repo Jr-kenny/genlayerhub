@@ -10,7 +10,7 @@ class JSONBinAPI {
 
     async initConfig() {
         try {
-            const response = await fetch('/api/config');
+            const response = await fetch('/api/jsonbin');
             const config = await response.json();
             this.BIN_ID = config.binId;
             this.API_KEY = config.apiKey;
