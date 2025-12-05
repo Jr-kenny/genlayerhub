@@ -1,80 +1,82 @@
-// Quiz Application
-class QuizApp {
-    constructor() {
-        this.quizData = null;
-        this.currentLevel = null;
-        this.currentQuestionIndex = 0;
-        this.userAnswers = [];
-        this.score = 0;
-        this.timer = null;
-        this.timeLeft = 0;
-        this.startTime = null;
-        
-        this.init();
-    }
+// Simple Quiz Application
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Quiz app initializing...');
     
-    async init() {
+    let quizData = null;
+    let currentLevel = null;
+    let currentQuestionIndex = 0;
+    let userAnswers = [];
+    let score = 0;
+    let timer = null;
+    let timeLeft = 0;
+    let startTime = null;
+    
+    // Load quiz data
+    async function loadQuizData() {
         try {
-            // Load quiz data from JSON
+            console.log('Loading quiz data from /data/quiz.json...');
             const response = await fetch('/data/quiz.json');
-            this.quizData = await response.json();
-            
-            // Set up event listeners
-            this.setupEventListeners();
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            quizData = await response.json();
+            console.log('Quiz data loaded successfully');
+            setupEventListeners();
         } catch (error) {
             console.error('Error loading quiz data:', error);
             alert('Failed to load quiz data. Please try again later.');
         }
     }
     
-    setupEventListeners() {
+    function setupEventListeners() {
+        console.log('Setting up event listeners...');
+        
         // Difficulty selection
-        document.querySelectorAll('.difficulty-card').forEach(card => {
-            card.addEventListener('click', (e) => {
-                this.showReadingMaterial(e.currentTarget.dataset.difficulty);
+        const difficultyCards = document.querySelectorAll('.difficulty-card');
+        difficultyCards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                console.log('Difficulty card clicked:', this.dataset.difficulty);
+                showReadingMaterial(this.dataset.difficulty);
             });
         });
         
         // Back to levels button
-        document.getElementById('backToLevelsBtn').addEventListener('click', () => {
-            this.hideReadingMaterial();
-        });
+        document.getElementById('backToLevelsBtn').addEventListener('click', hideReadingMaterial);
         
         // Start quiz button
-        document.getElementById('startQuizBtn').addEventListener('click', () => {
-            this.startQuiz();
-        });
+        document.getElementById('startQuizBtn').addEventListener('click', startQuiz);
         
         // Quiz navigation
-        document.getElementById('prevBtn').addEventListener('click', () => this.prevQuestion());
-        document.getElementById('nextBtn').addEventListener('click', () => this.nextQuestion());
+        document.getElementById('prevBtn').addEventListener('click', prevQuestion);
+        document.getElementById('nextBtn').addEventListener('click', nextQuestion);
         
-        // Restart quiz
-        document.getElementById('restartBtn').addEventListener('click', () => this.restartQuiz());
+        // Results page buttons
+        document.getElementById('restartBtn').addEventListener('click', restartQuiz);
+        document.getElementById('shareBtn').addEventListener('click', shareResults);
+        document.getElementById('certificateBtn').addEventListener('click', showCertificate);
+        document.getElementById('downloadCertBtn').addEventListener('click', downloadCertificate);
         
-        // Share results
-        document.getElementById('shareBtn').addEventListener('click', () => this.shareResults());
-        
-        // Certificate
-        document.getElementById('certificateBtn').addEventListener('click', () => this.showCertificate());
-        document.getElementById('downloadCertBtn').addEventListener('click', () => this.downloadCertificate());
+        console.log('Event listeners set up successfully');
     }
     
-    showReadingMaterial(level) {
-        this.currentLevel = level;
-        const levelData = this.quizData.quizLevels[level];
-        
-        if (!levelData) {
-            alert('Quiz data not found for this level.');
+    function showReadingMaterial(level) {
+        if (!quizData || !quizData.quizLevels[level]) {
+            alert('Quiz data not loaded. Please refresh the page.');
             return;
         }
+        
+        currentLevel = level;
+        const levelData = quizData.quizLevels[level];
+        
+        console.log('Showing reading material for:', level);
         
         // Hide difficulty selection, show reading material
         document.getElementById('difficultySelection').style.display = 'none';
         document.getElementById('readingMaterialContainer').style.display = 'block';
         
         // Set reading material title
-        document.getElementById('readingMaterialTitle').textContent = `${levelData.title} - Reading Material`;
+        document.getElementById('readingMaterialTitle').textContent = 
+            `${levelData.title} - Reading Material`;
         
         // Format and display reading material
         const contentElement = document.getElementById('readingMaterialContent');
@@ -93,14 +95,21 @@ class QuizApp {
             `${minutes}:${seconds.toString().padStart(2, '0')}`;
     }
     
-    hideReadingMaterial() {
+    function hideReadingMaterial() {
         document.getElementById('readingMaterialContainer').style.display = 'none';
         document.getElementById('difficultySelection').style.display = 'grid';
-        this.currentLevel = null;
+        currentLevel = null;
     }
     
-    startQuiz() {
-        const levelData = this.quizData.quizLevels[this.currentLevel];
+    function startQuiz() {
+        if (!quizData || !quizData.quizLevels[currentLevel]) {
+            alert('Quiz data not loaded. Please refresh the page.');
+            return;
+        }
+        
+        const levelData = quizData.quizLevels[currentLevel];
+        
+        console.log('Starting quiz for level:', currentLevel);
         
         // Hide reading material, show quiz
         document.getElementById('readingMaterialContainer').style.display = 'none';
@@ -113,52 +122,52 @@ class QuizApp {
         document.getElementById('totalQuestions').textContent = levelData.questionsCount;
         
         // Initialize quiz state
-        this.currentQuestionIndex = 0;
-        this.userAnswers = new Array(levelData.questions.length).fill(null);
-        this.score = 0;
+        currentQuestionIndex = 0;
+        userAnswers = new Array(levelData.questions.length).fill(null);
+        score = 0;
         
         // Set timer
-        this.timeLeft = levelData.timeLimit; // seconds
-        this.startTime = Date.now();
-        this.updateTimerDisplay();
-        this.startTimer();
+        timeLeft = levelData.timeLimit;
+        startTime = Date.now();
+        updateTimerDisplay();
+        startTimer();
         
         // Load first question
-        this.loadQuestion();
+        loadQuestion();
     }
     
-    // ... rest of your existing methods (startTimer, updateTimerDisplay, loadQuestion, etc.)
-    // These remain exactly the same as before
-    startTimer() {
-        if (this.timer) clearInterval(this.timer);
+    function startTimer() {
+        if (timer) clearInterval(timer);
         
-        this.timer = setInterval(() => {
-            this.timeLeft--;
-            this.updateTimerDisplay();
+        timer = setInterval(function() {
+            timeLeft--;
+            updateTimerDisplay();
             
-            if (this.timeLeft <= 0) {
-                clearInterval(this.timer);
-                this.endQuiz();
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                endQuiz();
             }
         }, 1000);
     }
     
-    updateTimerDisplay() {
-        const minutes = Math.floor(this.timeLeft / 60);
-        const seconds = this.timeLeft % 60;
+    function updateTimerDisplay() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
         document.getElementById('timer').textContent = 
             `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
     
-    loadQuestion() {
-        const levelData = this.quizData.quizLevels[this.currentLevel];
-        const question = levelData.questions[this.currentQuestionIndex];
+    function loadQuestion() {
+        if (!quizData || !quizData.quizLevels[currentLevel]) return;
+        
+        const levelData = quizData.quizLevels[currentLevel];
+        const question = levelData.questions[currentQuestionIndex];
         
         // Update question counter
-        document.getElementById('currentQuestion').textContent = this.currentQuestionIndex + 1;
+        document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
         
         // Update progress bar
-        const progress = ((this.currentQuestionIndex + 1) / levelData.questions.length) * 100;
+        const progress = ((currentQuestionIndex + 1) / levelData.questions.length) * 100;
         document.getElementById('progressBar').style.width = `${progress}%`;
         
         // Set question text
@@ -171,75 +180,78 @@ class QuizApp {
         question.options.forEach((option, index) => {
             const optionElement = document.createElement('div');
             optionElement.className = 'option';
-            if (this.userAnswers[this.currentQuestionIndex] === index) {
+            if (userAnswers[currentQuestionIndex] === index) {
                 optionElement.classList.add('selected');
             }
-            optionElement.dataset.index = index;
             
             optionElement.innerHTML = `
                 <div class="option-label">${String.fromCharCode(65 + index)}</div>
                 <div class="option-text">${option}</div>
             `;
             
-            optionElement.addEventListener('click', () => this.selectOption(index));
+            optionElement.addEventListener('click', function() {
+                // Deselect all options
+                document.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                
+                // Select clicked option
+                this.classList.add('selected');
+                
+                // Store answer
+                userAnswers[currentQuestionIndex] = index;
+            });
+            
             optionsContainer.appendChild(optionElement);
         });
         
         // Update navigation buttons
-        document.getElementById('prevBtn').disabled = this.currentQuestionIndex === 0;
-        document.getElementById('nextBtn').textContent = 
-            this.currentQuestionIndex === levelData.questions.length - 1 ? 
-            'Submit Quiz' : 
-            'Next';
-    }
-    
-    selectOption(optionIndex) {
-        // Deselect all options
-        document.querySelectorAll('.option').forEach(opt => {
-            opt.classList.remove('selected');
-        });
+        document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
         
-        // Select clicked option
-        event.currentTarget.classList.add('selected');
-        
-        // Store answer
-        this.userAnswers[this.currentQuestionIndex] = optionIndex;
-    }
-    
-    prevQuestion() {
-        if (this.currentQuestionIndex > 0) {
-            this.currentQuestionIndex--;
-            this.loadQuestion();
-        }
-    }
-    
-    nextQuestion() {
-        const levelData = this.quizData.quizLevels[this.currentLevel];
-        
-        // If no answer selected, skip
-        if (this.userAnswers[this.currentQuestionIndex] === null) {
-            // You can add a warning here if you want
-        }
-        
-        if (this.currentQuestionIndex < levelData.questions.length - 1) {
-            this.currentQuestionIndex++;
-            this.loadQuestion();
+        // Change next button to submit if last question
+        if (currentQuestionIndex === levelData.questions.length - 1) {
+            document.getElementById('nextBtn').innerHTML = 'Submit Quiz <i class="fas fa-paper-plane"></i>';
+            document.getElementById('nextBtn').onclick = endQuiz;
         } else {
-            this.endQuiz();
+            document.getElementById('nextBtn').innerHTML = 'Next <i class="fas fa-arrow-right"></i>';
+            document.getElementById('nextBtn').onclick = nextQuestion;
         }
     }
     
-    endQuiz() {
-        clearInterval(this.timer);
+    function prevQuestion() {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            loadQuestion();
+        }
+    }
+    
+    function nextQuestion() {
+        if (!quizData || !quizData.quizLevels[currentLevel]) return;
+        
+        const levelData = quizData.quizLevels[currentLevel];
+        
+        if (currentQuestionIndex < levelData.questions.length - 1) {
+            currentQuestionIndex++;
+            loadQuestion();
+        } else {
+            endQuiz();
+        }
+    }
+    
+    function endQuiz() {
+        clearInterval(timer);
+        
+        if (!quizData || !quizData.quizLevels[currentLevel]) return;
+        
+        const levelData = quizData.quizLevels[currentLevel];
         
         // Calculate score
-        const levelData = this.quizData.quizLevels[this.currentLevel];
         let correct = 0;
         let incorrect = 0;
         let skipped = 0;
         
         levelData.questions.forEach((question, index) => {
-            const userAnswer = this.userAnswers[index];
+            const userAnswer = userAnswers[index];
             
             if (userAnswer === null) {
                 skipped++;
@@ -250,20 +262,20 @@ class QuizApp {
             }
         });
         
-        this.score = Math.round((correct / levelData.questions.length) * 100);
+        score = Math.round((correct / levelData.questions.length) * 100);
         
         // Hide quiz, show results
         document.getElementById('quizContainer').style.display = 'none';
         document.getElementById('resultContainer').style.display = 'block';
         
         // Update result display
-        document.getElementById('finalScore').textContent = `${this.score}%`;
+        document.getElementById('finalScore').textContent = `${score}%`;
         document.getElementById('correctAnswers').textContent = correct;
         document.getElementById('incorrectAnswers').textContent = incorrect;
         document.getElementById('skippedAnswers').textContent = skipped;
         
         // Calculate time taken
-        const timeTaken = Math.floor((Date.now() - this.startTime) / 1000);
+        const timeTaken = Math.floor((Date.now() - startTime) / 1000);
         const minutes = Math.floor(timeTaken / 60);
         const seconds = timeTaken % 60;
         document.getElementById('timeTaken').textContent = 
@@ -273,13 +285,13 @@ class QuizApp {
         let feedback = '';
         let message = '';
         
-        if (this.score >= 90) {
+        if (score >= 90) {
             feedback = 'Outstanding!';
             message = 'You have mastered this level!';
-        } else if (this.score >= 70) {
+        } else if (score >= 70) {
             feedback = 'Great Job!';
             message = 'You have a solid understanding of the material.';
-        } else if (this.score >= 50) {
+        } else if (score >= 50) {
             feedback = 'Good Effort!';
             message = 'You have a basic understanding but room for improvement.';
         } else {
@@ -292,50 +304,46 @@ class QuizApp {
         
         // Update certificate preview
         document.getElementById('certDifficulty').textContent = 
-            this.currentLevel.charAt(0).toUpperCase() + this.currentLevel.slice(1);
-        document.getElementById('certScore').textContent = `${this.score}%`;
+            currentLevel.charAt(0).toUpperCase() + currentLevel.slice(1);
+        document.getElementById('certScore').textContent = `${score}%`;
     }
     
-    restartQuiz() {
+    function restartQuiz() {
         // Hide results and certificate, show difficulty selection
         document.getElementById('resultContainer').style.display = 'none';
         document.getElementById('certificatePreview').style.display = 'none';
         document.getElementById('difficultySelection').style.display = 'grid';
         document.getElementById('readingMaterialContainer').style.display = 'none';
         document.getElementById('quizContainer').style.display = 'none';
-    }
-    
-    shareResults() {
-        const levelData = this.quizData.quizLevels[this.currentLevel];
-        const shareText = `I scored ${this.score}% on the GenLayer ${this.currentLevel} level quiz! Test your knowledge at GenLayer.`;
         
-        if (navigator.share) {
-            navigator.share({
-                title: 'GenLayer Quiz Results',
-                text: shareText,
-                url: window.location.href
-            });
-        } else {
-            // Fallback: copy to clipboard
-            navigator.clipboard.writeText(shareText).then(() => {
-                alert('Results copied to clipboard!');
-            });
-        }
+        // Reset variables
+        currentLevel = null;
+        currentQuestionIndex = 0;
+        userAnswers = [];
+        score = 0;
     }
     
-    showCertificate() {
+    function shareResults() {
+        const shareText = `I scored ${score}% on the GenLayer ${currentLevel} level quiz! Test your knowledge at GenLayer.`;
+        const url = window.location.href;
+        const hashtags = 'GenLayer,Quiz,AI,Blockchain';
+        
+        // Twitter/X share URL
+        const twitterShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(url)}&hashtags=${hashtags}`;
+        
+        // Open Twitter share in a new window
+        window.open(twitterShareUrl, '_blank', 'width=550,height=420');
+    }
+    
+    function showCertificate() {
         const certificate = document.getElementById('certificatePreview');
         certificate.style.display = certificate.style.display === 'none' ? 'block' : 'none';
     }
     
-    downloadCertificate() {
-        // In a real implementation, you would generate a PDF here
-        // For now, we'll just show an alert
+    function downloadCertificate() {
         alert('Certificate download would be implemented here. In a production app, this would generate a PDF with your name, score, and completion date.');
     }
-}
-
-// Initialize quiz when page loads
-document.addEventListener('DOMContentLoaded', () => {
-    new QuizApp();
+    
+    // Initialize the quiz app
+    loadQuizData();
 });
