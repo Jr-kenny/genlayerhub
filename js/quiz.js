@@ -24,7 +24,6 @@ document.addEventListener('DOMContentLoaded', function() {
             setupEventListeners();
         } catch (error) {
             console.error('Error loading quiz data:', error);
-            alert('Failed to load quiz data. Please try again later.');
         }
     }
     
@@ -335,14 +334,6 @@ document.addEventListener('DOMContentLoaded', function() {
         window.open(twitterShareUrl, '_blank', 'width=550,height=420');
     }
     
-    function showCertificate() {
-        const certificate = document.getElementById('certificatePreview');
-        certificate.style.display = certificate.style.display === 'none' ? 'block' : 'none';
-    }
-    
-    function downloadCertificate() {
-        alert('Certificate download would be implemented here. In a production app, this would generate a PDF with your name, score, and completion date.');
-    }
     
     // Initialize the quiz app
     loadQuizData();
